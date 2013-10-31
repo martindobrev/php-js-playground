@@ -57,7 +57,7 @@ $(document).ready(function() {
                 success: function(employees) {
                     for (var i = 0; i < employees.length; i++) {
                         var employeeData = employees.models[i];
-                        var employee = new EmployeeTableRowView();
+                        var employee = new EmployeeTableRowView({model: employeeData});
                         employee.render(employeeData);
                     }
                     
@@ -69,14 +69,14 @@ $(document).ready(function() {
     });
     
     var EmployeeTableRowView = Backbone.View.extend({
-        render: function(model) {
-            var template = _.template($('#employee_table_representation_template').html(), {model: model});
+        render: function() {
+            var template = _.template($('#employee_table_row_view_template').html(), {model: this.model});
             var t = this;
             $(template).appendTo(this.$table).each(function() {
-                t.el = this;
-                t.events['click input'] = 'action';
+                t.setElement(this);
             });
             //this.$el.html(template);
+            return this;
         },
         
         table: '#employee_table_body',
@@ -87,30 +87,60 @@ $(document).ready(function() {
         },
         
         events: {
-            'click input': 'action'
+            'click .btn': 'triggerEditView',
+            'dblclick td': 'triggerEditView'
         },
         
-        action: function(e) {
-            console.log('TESTING!');
+        triggerEditView: function() {
+            console.log('SHOW EDIT ELEMENT INSTED!');
+            
+            var editView = new EmployeeTableRowEditView({model: this.model});
+            
+            editView.render(this);
+            
+            
+            this.remove();
+            
+            
         }
-        
     });
     
     
+    var EmployeeTableRowEditView = EmployeeTableRowView.extend({
+        render: function(view) {
+            var template = _.template($('#employee_table_row_edit_template').html(), {model: this.model});
+            var t = this;
+            $(template).insertAfter(view.$el).each(function() {
+            //$(template).appendTo(this.$table).each(function() {
+                t.setElement(this);
+            });
+            //this.$el.html(template);
+            return this;
+        },
+        
+        events: {
+            'click .btn': 'save'
+        },
+        
+        save: function() {
+            console.log('SAVING GOES HERE...');
+        }
+    });
+    
+    /*
     var p = new Employee({
-        firstname: 'Martin',
-        lastnane: 'Dobrev',
-        position: 'CTO',
-        salary: 16780,
-        age: 27
+        firstname: 'Tim',
+        lastnane: 'Thomas',
+        position: 'Senior Developer',
+        salary: 7300,
+        age: 29
     });
     
     p.save();
+    */
     
     var employeeList = new EmployeeListView();
-    
     employeeList.render();
-    
     
     
 });
