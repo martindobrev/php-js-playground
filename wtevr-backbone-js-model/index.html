@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Bootstrap 101 Template</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8">
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+
+    
+  </head>
+  <body>
+
+    
+    <div class="container">
+        <h1>Hello, Backbone & Underscore!</h1>
+        <div id="search_container"></div>
+        
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Lastname</th>
+                    <th>Position</th>
+                    <th>Salary</th>
+                    <th>Age</th>
+                </tr>
+            </thead>
+            
+            <tbody id="employee_table_body">
+            </tbody>
+        </table>
+        
+    </div>
+    
+    <!-- BEGIN TEMPLATES -->
+    <script type="text/template" id="search_template">
+        <div class="input-group">
+        <input type="text" class="form-control" placeholder="Enter search query here">
+        <span class="input-group-addon">seach</span>
+        </div>
+    </script>
+    
+    <script type="text/template" id="employee_table_representation_template">
+    <tr>
+        <td></td>
+        <td>Bla Bla</td>
+        <td>NAMEMANE</td>
+        <td>CEO</td>
+        <td>4500 €</td>
+        <td>23</td>
+    </tr>
+    </script>
+    
+    <!-- END   TEMPLATES -->
+    
+    
+    
+    
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="//code.jquery.com/jquery.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/underscore.js"></script>
+    <script src="js/backbone.js"></script>    
+    
+    <script type="text/javascript" src="js/logic.js"></script>
+    
+  </body>
+</html>
