@@ -52,6 +52,25 @@ $app->post('/backbone/{model}', function(Request $request, $model) use ($app) {
     
 });
 
+$app->put('/backbone/{model}', function(Request $request, $model) use ($app) {
+    
+    $params = get_object_vars(json_decode($request->getContent()));
+    
+    $id = $params['id'];
+    $bean = R::load($model, $id);
+    
+    foreach($params as $key => $value) {
+        if ($key !== 'id') {
+            $bean->setAttr($key, $value);
+        }
+    }
+    
+    R::store($bean);
+    
+    return new Response(json_encode($bean->export()));
+     
+});
+
 $app->get('', function() use ($app) {
     
     return $app['twig']->render('index.html.twig');

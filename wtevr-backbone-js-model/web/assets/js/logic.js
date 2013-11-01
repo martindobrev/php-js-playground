@@ -13,12 +13,30 @@ $(document).ready(function() {
         defaults: {
             firstname: 'Joe',
             lastname: 'Black',
-            age: -1,
+            position: 'unemployed',
+            salary: 0,
+            age: -1
         },
         
         initialize: function() {
             console.log("Employee with id: " + this.cid + " created!");
+            this.on('sync', function() {
+                console.log('OBJECT SYNCCCCT');
+            });
+            
+            this.on('change', function() {
+                console.log('ON CHANGE!!!');
+            });
+        },
+        /*
+        events: {
+            'change' : 'changeParameters'
+        },
+        
+        changeParameters: function() {
+            console.log('SOME PARAMETERS CHANGED!!!');
         }
+        */
     });
     
     var SearchView = Backbone.View.extend({
@@ -42,7 +60,7 @@ $(document).ready(function() {
     });
     
     var Employees = Backbone.Collection.extend({
-//        model: Person,
+        model: Employee,
         url: ROOT_PATH + '/backbone/list/employee'
     });
     
@@ -57,8 +75,11 @@ $(document).ready(function() {
                 success: function(employees) {
                     for (var i = 0; i < employees.length; i++) {
                         var employeeData = employees.models[i];
+                        employeeData.on('change', function() {
+                            console.log('CHANGEEEEEEEEEEE');
+                        });
                         var employee = new EmployeeTableRowView({model: employeeData});
-                        employee.render(employeeData);
+                        employee.render();
                     }
                     
                     console.log(employees);
@@ -69,13 +90,20 @@ $(document).ready(function() {
     });
     
     var EmployeeTableRowView = Backbone.View.extend({
-        render: function() {
+        render: function(view) {
             var template = _.template($('#employee_table_row_view_template').html(), {model: this.model});
             var t = this;
-            $(template).appendTo(this.$table).each(function() {
-                t.setElement(this);
-            });
-            //this.$el.html(template);
+            
+            if (view) {
+                $(template).insertAfter(view.$el).each(function() {
+                    t.setElement(this);
+                });
+            } else {
+                $(template).appendTo(this.$table).each(function() {
+                    t.setElement(this);
+                });                
+            }
+            
             return this;
         },
         
@@ -84,6 +112,19 @@ $(document).ready(function() {
         initialize: function() {
             //console.log('Initializing table row view with table selector: ' + this.table);
             this.$table = $(this.table);
+            
+            this.model.on('change', function() {
+                console.log('MODEL CHANGEEED!');
+            });
+            
+            /*
+            this.model.on('sync', function() {
+                //this.restoreOriginalView();
+                
+                this.editView.remove();
+            });
+            */
+        
         },
         
         events: {
@@ -96,7 +137,15 @@ $(document).ready(function() {
             
             var editView = new EmployeeTableRowEditView({model: this.model});
             
+            var t = this;
+            editView.on('edition-complete', function() {
+                t.render(this);
+                this.remove();
+            });
+            
+            
             editView.render(this);
+            
             
             
             this.remove();
@@ -118,16 +167,42 @@ $(document).ready(function() {
             return this;
         },
         
-        events: {
-            'click .btn': 'save'
+        initialize: function() {
+            var t = this;
+            this.model.on('sync', function() {
+                t.trigger('edition-complete');
+            });
         },
         
-        save: function() {
-            console.log('SAVING GOES HERE...');
+        events: {
+            'click .btn': 'editEmployee'
+        },
+        
+        editEmployee: function(e) {
+            console.log('Saving employee...');
+            
+            var attrs = {};
+            
+            attrs.firstname = this.$el.find('input[name="firstname"]').val();
+            attrs.lastname = this.$el.find('input[name="lastname"]').val();
+            attrs.position = this.$el.find('input[name="position"]').val();
+            attrs.salary = this.$el.find('input[name="salary"]').val();
+            attrs.age = this.$el.find('input[name="age"]').val();
+            
+            //console.log('OBJECT TO BE CHANGED, new parameters:');
+            //console.log(attrs);
+            
+            //this.model.set(attrs);
+            
+            console.log(this.model.changed);
+            
+            
+            this.model.save(attrs, {wait: true});
+            
         }
     });
     
-    /*
+    
     var p = new Employee({
         firstname: 'Tim',
         lastnane: 'Thomas',
@@ -136,8 +211,8 @@ $(document).ready(function() {
         age: 29
     });
     
-    p.save();
-    */
+    p.set({firstname: 'fgfhgfh'});
+    
     
     var employeeList = new EmployeeListView();
     employeeList.render();
