@@ -20,13 +20,6 @@ $(document).ready(function() {
         
         initialize: function() {
             console.log("Employee with id: " + this.cid + " created!");
-            this.on('sync', function() {
-                console.log('OBJECT SYNCCCCT');
-            });
-            
-            this.on('change', function() {
-                console.log('ON CHANGE!!!');
-            });
         },
         /*
         events: {
@@ -75,9 +68,9 @@ $(document).ready(function() {
                 success: function(employees) {
                     for (var i = 0; i < employees.length; i++) {
                         var employeeData = employees.models[i];
-                        employeeData.on('change', function() {
-                            console.log('CHANGEEEEEEEEEEE');
-                        });
+                        //employeeData.on('change', function() {
+                        //    console.log('Change the properties here...');
+                        //});
                         var employee = new EmployeeTableRowView({model: employeeData});
                         employee.render();
                     }
@@ -110,26 +103,32 @@ $(document).ready(function() {
         table: '#employee_table_body',
         
         initialize: function() {
+            var self = this;
+            
             //console.log('Initializing table row view with table selector: ' + this.table);
             this.$table = $(this.table);
             
             this.model.on('change', function() {
-                console.log('MODEL CHANGEEED!');
+                console.log('CHANGE PROPERTIES HERE...');
             });
             
-            /*
             this.model.on('sync', function() {
-                //this.restoreOriginalView();
-                
-                this.editView.remove();
+                self.refresh();
             });
-            */
         
+        },
+        
+        refresh: function() {
+            console.log('REFRESHING PROPERTIES...');
+            var params = ['firstname', 'lastname', 'position', 'salary', 'age'];
+            for (var i = 0; i < params.length; i++) {
+                this.$el.find('[data-property="' + params[i] + '"]').text(this.model.get(params[i]));
+            }
         },
         
         events: {
             'click .btn': 'triggerEditView',
-            'dblclick td': 'triggerEditView'
+            'dblclick td': 'triggerEditPopover'
         },
         
         triggerEditView: function() {
@@ -141,15 +140,48 @@ $(document).ready(function() {
             editView.on('edition-complete', function() {
                 t.render(this);
                 this.remove();
-            });
-            
-            
+            });  
             editView.render(this);
-            
-            
-            
             this.remove();
             
+            
+        },
+        
+        triggerEditPopover: function(e) {
+            
+            var t = this;
+            var target = e.currentTarget;
+            
+            var value = $(target).text();
+            var property = $(target).attr('data-property');
+            $(target).popover({
+               html: true,
+               title: 'Edit property',
+               content: '<input type="text" data-property="' + property + '" id="edit_popup" value="' + value + '" class="form-control"/>',
+               placement: 'top',
+               container: 'body'
+            });
+            
+            $(target).on('shown.bs.popover', function() {
+                
+                $('#edit_popup').focus();
+                
+                $('#edit_popup').keyup(function(e) {
+                    if (e.which == 13) {
+                        
+                        var attr = {};
+                        attr[$(this).attr('data-property')] = $(this).val();
+                        
+                        t.model.save(attr, {wait: true});
+                        
+                        $(target).popover('hide');
+                        $(this).css('disabled', 'disabled');
+                    }
+                });
+                //console.log('POPOVER SHOWN!'); 
+            });
+            
+            $(target).popover('show');
             
         }
     });

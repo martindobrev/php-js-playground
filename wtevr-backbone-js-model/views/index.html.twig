@@ -42,12 +42,12 @@
     
     <script type="text/template" id="employee_table_row_view_template">
     <tr id="employee_view_<%= model.get('id') %>">
-        <td><%= model.get('id') %></td>
-        <td><%= model.get('firstname') %></td>
-        <td><%= model.get('lastname') %></td>
-        <td><%= model.get('position') %></td>
-        <td><%= model.get('salary') %> €</td>
-        <td><%= model.get('age') %></td>
+        <td data-property="id"><%= model.get('id') %></td>
+        <td data-property="firstname"><%= model.get('firstname') %></td>
+        <td data-property="lastname"><%= model.get('lastname') %></td>
+        <td data-property="position"><%= model.get('position') %></td>
+        <td data-property="salary"><%= model.get('salary') %> €</td>
+        <td data-property="age"><%= model.get('age') %></td>
         <td><a class="btn btn-primary" data-id="edit_btn">edit</a></td>
     </tr>
     </script>
