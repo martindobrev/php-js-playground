@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8">
     <!-- Bootstrap -->
     <link href="assets/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    
+    <script type="text/javascript">
+        var ROOT_PATH = '/php-js-playground/wtevr-backbone-js-model/web';
+    </script>
   </head>
   <body>
 
@@ -48,7 +52,10 @@
         <td data-property="position"><%= model.get('position') %></td>
         <td data-property="salary"><%= model.get('salary') %> €</td>
         <td data-property="age"><%= model.get('age') %></td>
-        <td><a class="btn btn-primary" data-id="edit_btn">edit</a></td>
+        <td>
+            <a class="btn btn-primary" data-id="edit_btn">edit</a>
+            <a class="btn btn-primary" data-id="delete_btn">delete</a>
+        </td>
     </tr>
     </script>
     
@@ -75,8 +82,10 @@
             <input type="text" name="age" class="form-control"
                    value="<%= model.get('age') %>"/>
         </td>
-       
-        <td><a class="btn btn-primary" data-id="save_btn">save</a></td>
+        <td>
+            <a class="btn btn-primary" data-id="save_btn">save</a>
+            <a class="btn btn-primary" data-id="cancel_btn">cancel</a>
+        </td>
     </tr>
     </script>
     
@@ -92,6 +101,12 @@
     <script src="assets/js/underscore.js"></script>
     <script src="assets/js/backbone-dev.js"></script>    
     
+    <script src="assets/js/Employee/EmployeeModel.js"></script>
+    <script src="assets/js/Employee/EmployeeCollection.js"></script>
+    <script src="assets/js/Employee/EmployeeListView.js"></script>
+    <script src="assets/js/Employee/EmployeeTableRowView.js"></script>
+    <script src="assets/js/Employee/EmployeeListView.js"></script>
+    <script src="assets/js/Employee/EmployeeTableRowEditView.js"></script>
     <script type="text/javascript" src="assets/js/logic.js"></script>
     
   </body>

@@ -15,7 +15,7 @@ $app->register(new Silex\Provider\TwigServiceProvider(), array(
 ));
 
 
-$app->get('/backbone/list/{model}', function($model) use ($app) {
+$app->get('/backbone/{model}', function($model) use ($app) {
     //die($model);
     $models = R::findAll($model);
     $toExport = array();
@@ -52,11 +52,11 @@ $app->post('/backbone/{model}', function(Request $request, $model) use ($app) {
     
 });
 
-$app->put('/backbone/{model}', function(Request $request, $model) use ($app) {
+$app->put('/backbone/{model}/{id}', function(Request $request, $model, $id) use ($app) {
     
-    $params = get_object_vars(json_decode($request->getContent()));
+    $params = json_decode($request->getContent());
     
-    $id = $params['id'];
+    
     $bean = R::load($model, $id);
     
     foreach($params as $key => $value) {
@@ -69,6 +69,24 @@ $app->put('/backbone/{model}', function(Request $request, $model) use ($app) {
     
     return new Response(json_encode($bean->export()));
      
+});
+
+
+$app->delete('/backbone/{model}/{id}', function(Request $request, $model, $id) use ($app) {
+    
+    $bean = R::load($model, $id);
+    
+    if ($bean->id) {
+        R::trash($bean);
+        return new Response(json_encode(array('success' => true)));
+    } else {
+        return new Response(json_encode(array('error' => 'No ' 
+            . $model . ' with id ' . $id . ' found!'))
+            , Response::HTTP_UNPROCESSABLE_ENTITY);
+    }
+    
+    
+    
 });
 
 $app->get('', function() use ($app) {
