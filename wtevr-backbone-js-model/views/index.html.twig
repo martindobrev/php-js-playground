@@ -9,14 +9,46 @@
     <script type="text/javascript">
         var ROOT_PATH = '/php-js-playground/wtevr-backbone-js-model/web';
     </script>
+    
+    <script type="text/javascript" src="assets/js/libs/jquery/jquery.js"></script>
+    <script type="text/javascript" src="assets/js/libs/backbone/underscore.js"></script>
+    <script type="text/javascript" src="assets/js/libs/backbone/backbone.js"></script>
+    <script type="text/javascript" src="assets/js/libs/bootstrap/bootstrap.min.js"></script>
+    
+    <script type="text/javascript" src="assets/js/app/models/EmployeeModel.js"></script>
+    <script type="text/javascript" src="assets/js/app/collections/EmployeeCollection.js"></script>
+    <script type="text/javascript" src="assets/js/app/views/EmployeeListView.js"></script>
+    <script type="text/javascript" src="assets/js/app/views/EmployeeTableRowView.js"></script>
+    <script type="text/javascript" src="assets/js/app/views/EmployeeTableRowEditView.js"></script>
+    
+    <script type="text/javascript" src="assets/js/logic.js"></script>
   </head>
   <body>
 
     
     <div class="container">
         <h1>Hello, Backbone & Underscore!</h1>
-        <div id="search_container"></div>
         
+        
+        
+        
+        <div id="backbone_container">
+        
+        </div>
+    </div>
+    
+    <!-- BEGIN TEMPLATES -->
+    <script type="text/template" id="search_template">
+        <div class="input-group">
+        <input type="text" class="form-control" placeholder="Enter search query here">
+        <span class="input-group-addon">seach</span>
+        </div>
+    </script>
+    
+    
+    <script type="text/template" id="employee_table_template">
+        
+        <div>
         <table class="table">
             <thead>
                 <tr>
@@ -29,19 +61,13 @@
                     <th>Options</th>
                 </tr>
             </thead>
-            
-            <tbody id="employee_table_body">
+            <tbody>
+                
             </tbody>
         </table>
-        
-    </div>
-    
-    <!-- BEGIN TEMPLATES -->
-    <script type="text/template" id="search_template">
-        <div class="input-group">
-        <input type="text" class="form-control" placeholder="Enter search query here">
-        <span class="input-group-addon">seach</span>
-        </div>
+                
+        </div>        
+                
     </script>
     
     <script type="text/template" id="employee_table_row_view_template">
@@ -92,22 +118,15 @@
     <!-- END   TEMPLATES -->
     
     
-    
-    
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="//code.jquery.com/jquery.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="assets/js/bootstrap.min.js"></script>
-    <script src="assets/js/underscore.js"></script>
-    <script src="assets/js/backbone-dev.js"></script>    
-    
+    <!--
     <script src="assets/js/Employee/EmployeeModel.js"></script>
     <script src="assets/js/Employee/EmployeeCollection.js"></script>
     <script src="assets/js/Employee/EmployeeListView.js"></script>
     <script src="assets/js/Employee/EmployeeTableRowView.js"></script>
     <script src="assets/js/Employee/EmployeeListView.js"></script>
     <script src="assets/js/Employee/EmployeeTableRowEditView.js"></script>
-    <script type="text/javascript" src="assets/js/logic.js"></script>
+    -->
+    
     
   </body>
 </html>

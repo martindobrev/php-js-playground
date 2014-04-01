@@ -32,7 +32,7 @@ $app->get('/backbone/{model}', function($model) use ($app) {
 // GET MODEL
 $app->get('/backbone/{model}/{id}', function($model, $id) use ($app) {
     
-    $model = R::getRow($model, 'id = ?', array($id));
+    $model = R::getRow('SELECT * FROM ' . $model . ' WHERE id = ?', array($id));
     return $app->json($model);
 });
 
