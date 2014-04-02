@@ -5,25 +5,20 @@ var EmployeeListView = Backbone.View.extend({
     render: function() {
         var employees = new Employees();
         var t = this;
-        
         var tableTemplate = _.template($('#employee_table_template').html());
         
-        console.log(tableTemplate());
-        
-        this.$el.append(tableTemplate());
-        
-        $(tableTemplate()).appendTo(this.$el).each(function() {
+        $(this.el).html(tableTemplate).each(function() {
             t.$table = this;
+            
+            var tbody = $(this).find('tbody');
             
             employees.fetch({
                 success: function(employees) {
+                    
                     for (var i = 0; i < employees.length; i++) {
                         var employeeData = employees.models[i];
-                        //employeeData.on('change', function() {
-                        //    console.log('Change the properties here...');
-                        //});
-                        var employee = new EmployeeTableRowView({model: employeeData, el: $(t.$table).find('tbody')});
-                        employee.render();
+                        var employee = new EmployeeTableRowView({model: employeeData});
+                        employee.render(tbody);
                     }
                 }
             });

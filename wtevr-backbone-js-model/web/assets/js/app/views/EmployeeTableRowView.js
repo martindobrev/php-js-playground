@@ -2,13 +2,16 @@ var EmployeeTableRowView = Backbone.View.extend({
     render: function(view) {
         var template = _.template($('#employee_table_row_view_template').html(), {model: this.model});
         var t = this;
-
-        if (view) {
-            $(template).insertAfter(view.$el).each(function() {
+        
+        var elementType = $(view).prop('tagName');
+        //if (var elementType = $(this).prev().prop('tagName');)
+        
+        if ('tbody' !== elementType.toLowerCase()) {
+            $(template).insertAfter(view).each(function() {
                 t.setElement(this);
             });
         } else {
-            $(template).appendTo(this.$table).each(function() {
+            $(template).appendTo(view).each(function() {
                 t.setElement(this);
             });
         }
@@ -16,13 +19,10 @@ var EmployeeTableRowView = Backbone.View.extend({
         return this;
     },
 
-    table: '#employee_table_body',
+    listView: null,
 
     initialize: function() {
         var self = this;
-
-        //console.log('Initializing table row view with table selector: ' + this.table);
-        this.$table = $(this.table);
 
         this.model.on('change', function() {
             console.log('CHANGE PROPERTIES HERE...');
@@ -55,7 +55,7 @@ var EmployeeTableRowView = Backbone.View.extend({
 
         var t = this;
         editView.on('edition-complete', function() {
-            t.render(this);
+            t.render(this.$el);
             this.remove();
         });  
         editView.render(this);

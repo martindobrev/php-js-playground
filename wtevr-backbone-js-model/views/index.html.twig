@@ -18,6 +18,7 @@
     <script type="text/javascript" src="assets/js/app/models/EmployeeModel.js"></script>
     <script type="text/javascript" src="assets/js/app/collections/EmployeeCollection.js"></script>
     <script type="text/javascript" src="assets/js/app/views/EmployeeListView.js"></script>
+    <script type="text/javascript" src="assets/js/app/views/EmployeeAddView.js"></script>
     <script type="text/javascript" src="assets/js/app/views/EmployeeTableRowView.js"></script>
     <script type="text/javascript" src="assets/js/app/views/EmployeeTableRowEditView.js"></script>
     
@@ -49,23 +50,24 @@
     <script type="text/template" id="employee_table_template">
         
         <div>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Id</th>
-                    <th>Name</th>
-                    <th>Lastname</th>
-                    <th>Position</th>
-                    <th>Salary</th>
-                    <th>Age</th>
-                    <th>Options</th>
-                </tr>
-            </thead>
-            <tbody>
-                
-            </tbody>
-        </table>
-                
+            <a role="button" href="#new" class="btn btn-info"><span class="glyphicon glyphicon-plus"></span> add new employee</a>
+            
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Name</th>
+                        <th>Lastname</th>
+                        <th>Position</th>
+                        <th>Salary</th>
+                        <th>Age</th>
+                        <th>Options</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table> 
         </div>        
                 
     </script>
@@ -83,6 +85,41 @@
             <a class="btn btn-primary" data-id="delete_btn">delete</a>
         </td>
     </tr>
+    </script>
+    
+    
+    <script type="text/template" id="employee_add_template">
+        <h2>Add new employee</h2>
+        
+        <form role="form" method="post" action="http://localhost:8888/php-js-playground/wtevr-backbone-js-model/web/backbone/employee">
+            <div class="form-group">
+                <label for="name">Firstname</label>
+                <input type="text" class="form-control" id="firstname" name="firstname" placeholder="Enter name"/>
+            </div>
+            
+            <div class="form-group">
+                <label for="lastname">Lastname</label>
+                <input type="text" class="form-control" id="lastname" name="lastname" placeholder="Enter lastname"/>
+            </div>
+                
+            <div class="form-group">
+                <label for="position">Position</label>
+                <input type="text" class="form-control" id="position" name="position" placeholder="Enter position"/>
+            </div>
+                
+            <div class="form-group">
+                <label for="salary">Salary</label>
+                <input type="text" class="form-control" id="salary" name="salary" placeholder="Enter salary in €"/>
+            </div>
+                
+            <div class="form-group">
+                <label for="age">Age</label>
+                <input type="text" class="form-control" id="age" name="age" placeholder="Enter age">
+            </div>
+                
+            <button type="submit" class="btn btn-default btn-primary">Add</button>
+            <a href="#" id="cancel_btn" class="btn btn-default btn-warning">Cancel</a>
+        </form>
     </script>
     
     <script type="text/template" id="employee_table_row_edit_template">
