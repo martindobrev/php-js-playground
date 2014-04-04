@@ -22,7 +22,7 @@ var EmployeeAddView = Backbone.View.extend({
         var t = this;
         var newEmployee = new Employee();
         
-        newEmployee.on('invalid', this.invalid);
+        //newEmployee.on('invalid', this.invalid);
         
         newEmployee.save(data, {
             success: function() {

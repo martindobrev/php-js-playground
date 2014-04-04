@@ -1,27 +1,46 @@
 var EmployeeListView = Backbone.View.extend({ 
     el: '#backbone_container',
-    $table : null,
+    template : _.template($('#employee_table_template').html()),
+    
+    initialize: function(options) {
+        if (undefined === options) {
+            this.currentPage = 1;
+            this.entitiesPerPage = 5;
+        } else {
+            if (undefined !== options.currentPage) {
+                this.currentPage = options.currentPage;
+            } else {
+                this.currentPage = 1;
+            }
+
+            if (undefined !== options.entitiesPerPage) {
+                this.entitiesPerPage = 5;
+            } else {
+                this.entitiesPerPage = options.entitiesPerPage;
+            }
+        }
+    },
     
     render: function() {
-        var employees = new Employees();
         var t = this;
-        var tableTemplate = _.template($('#employee_table_template').html());
         
-        $(this.el).html(tableTemplate).each(function() {
-            t.$table = this;
-            
+        $(this.el).html(this.template({cid: t.cid})).each(function() {
             var tbody = $(this).find('tbody');
             
-            employees.fetch({
-                success: function(employees) {
-                    
-                    for (var i = 0; i < employees.length; i++) {
-                        var employeeData = employees.models[i];
-                        var employee = new EmployeeTableRowView({model: employeeData});
-                        employee.render(tbody);
-                    }
-                }
+            var paginator = new BootstrapPaginatorView({
+               pageCount: 20,
+               currentPage: 5
             });
+            
+            paginator.render(this);
+            
+            for (var i = 0; i < t.collection.length; i++) {
+                var modelData = t.collection.models[i];
+                var employee = new EmployeeTableRowView({
+                    model: modelData
+                });
+                employee.render(tbody);
+            }
         });
     }
 });

@@ -15,6 +15,8 @@ $.fn.serializeObject = function() {
 };
 
 
+var GLOBAL = this;
+
 $(document).ready(function() {
     
     var Router = Backbone.Router.extend({
@@ -26,19 +28,23 @@ $(document).ready(function() {
     
     var router = new Router();
     
-    var employeeList = new EmployeeListView();
+    
     var createView = new EmployeeAddView();
     createView.setRouter(router);
     
-    
     router.on('route:home', function() {
-        
-        employeeList.render();
+        var employees = new Employees();
+        employees.fetch({
+            success: function(collection, response, options) {
+                var employeeList = new EmployeeListView({
+                    collection: collection
+                });
+                employeeList.render();
+            }
+        });
     });
     
     router.on('route:new', function() {
-        
-        
         createView.render();
     });
     

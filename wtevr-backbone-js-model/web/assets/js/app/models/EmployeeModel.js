@@ -19,8 +19,9 @@ var Employee = Backbone.Model.extend({
     },
     
     validate: function(attrs, options) {
-        console.log('VALIDATE CALLED!!!!');
         var errors = [];
+        
+        var fields = Employee.fields;
         
         if (NaN === parseInt(attrs.age) || '' === attrs.age) {
             errors.push('AGE MUST BE NUMBER');
@@ -36,7 +37,39 @@ var Employee = Backbone.Model.extend({
         } else {
             // DO NOTHING
         }
+        
+        return 'TEST';
     }
+}, {
+    
+    fields: {
+        firstname: {
+            type: 'string',
+            length: 20,
+            nullable: false
+        },
+        lastname: {
+            type: 'string',
+            length: 20,
+            nullable: false
+        },
+        position: {
+            type: 'string',
+            length: 50,
+            nullable: false
+        },
+        salary: {
+            type: 'integer',
+            length: 10,
+            nullable: false
+        },
+        age: {
+            type: 'integer',
+            length: 10,
+            nullable: false,
+            min_value: 18
+        }
+    }
+    
+    
 });
-
-

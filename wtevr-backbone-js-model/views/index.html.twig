@@ -15,23 +15,12 @@
     <script type="text/javascript" src="assets/js/libs/backbone/backbone.js"></script>
     <script type="text/javascript" src="assets/js/libs/bootstrap/bootstrap.min.js"></script>
     
-    <script type="text/javascript" src="assets/js/app/models/EmployeeModel.js"></script>
-    <script type="text/javascript" src="assets/js/app/collections/EmployeeCollection.js"></script>
-    <script type="text/javascript" src="assets/js/app/views/EmployeeListView.js"></script>
-    <script type="text/javascript" src="assets/js/app/views/EmployeeAddView.js"></script>
-    <script type="text/javascript" src="assets/js/app/views/EmployeeTableRowView.js"></script>
-    <script type="text/javascript" src="assets/js/app/views/EmployeeTableRowEditView.js"></script>
-    
-    <script type="text/javascript" src="assets/js/logic.js"></script>
   </head>
   <body>
 
     
     <div class="container">
         <h1>Hello, Backbone & Underscore!</h1>
-        
-        
-        
         
         <div id="backbone_container">
         
@@ -49,7 +38,7 @@
     
     <script type="text/template" id="employee_table_template">
         
-        <div>
+        <div id="<%= cid %>">
             <a role="button" href="#new" class="btn btn-info"><span class="glyphicon glyphicon-plus"></span> add new employee</a>
             
             <table class="table">
@@ -67,10 +56,25 @@
                 <tbody>
 
                 </tbody>
-            </table> 
+            </table>
         </div>        
                 
     </script>
+    
+    
+    <script type="text/template" id="basic_bootstrap_paginator_template">
+        <ul class="pagination pagination-sm" id="<%= cid %>">
+            <li data-type="prev"><a href="#">&laquo;</a></li>
+            <li class="active"><a href="#">1 <span class="sr-only">(current)</span></a></li>
+            <li><a href="#">2</a></li>
+            <li><a href="#">3</a></li>
+            <li><a href="#">4</a></li>
+            <li><a href="#">5</a></li>
+            <li><a href="#">6</a></li>
+            <li><a href="#">&raquo;</a></li>
+        </ul>
+    </script>
+  
     
     <script type="text/template" id="employee_table_row_view_template">
     <tr id="employee_view_<%= model.get('id') %>">
@@ -164,6 +168,18 @@
     <script src="assets/js/Employee/EmployeeTableRowEditView.js"></script>
     -->
     
+    <!-- SCRIPT TEMPLATES -->
+    
+    <script type="text/javascript" src="assets/js/app/wtevr/WtevrValidator.js"></script>
+    <script type="text/javascript" src="assets/js/app/models/EmployeeModel.js"></script>
+    <script type="text/javascript" src="assets/js/app/collections/EmployeeCollection.js"></script>
+    <script type="text/javascript" src="assets/js/app/views/EmployeeListView.js"></script>
+    <script type="text/javascript" src="assets/js/app/views/EmployeeAddView.js"></script>
+    <script type="text/javascript" src="assets/js/app/views/EmployeeTableRowView.js"></script>
+    <script type="text/javascript" src="assets/js/app/views/EmployeeTableRowEditView.js"></script>
+    <script type="text/javascript" src="assets/js/app/views/BootstrapPaginatorView.js"></script>
+    
+    <script type="text/javascript" src="assets/js/logic.js"></script>
     
   </body>
 </html>
