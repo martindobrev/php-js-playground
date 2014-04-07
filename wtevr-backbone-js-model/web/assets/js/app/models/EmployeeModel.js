@@ -37,9 +37,21 @@ var Employee = Backbone.Model.extend({
         } else {
             // DO NOTHING
         }
+    },
+    
+    sort: function(property) {
+        var prop = Employee.fields[property];
         
-        return 'TEST';
+        if (prop) {
+            if (prop.type === 'string') {
+                return this.get(property);
+            } else if (prop.type === 'integer') {
+                return parseInt(this.get(property));
+            }
+        }
+        
     }
+    
 }, {
     
     fields: {

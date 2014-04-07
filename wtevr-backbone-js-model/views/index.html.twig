@@ -11,6 +11,7 @@
     </script>
     
     <script type="text/javascript" src="assets/js/libs/jquery/jquery.js"></script>
+    <script type="text/javascript" src="assets/js/libs/jquery/plugins/jquery.simplePagination.js"></script>
     <script type="text/javascript" src="assets/js/libs/backbone/underscore.js"></script>
     <script type="text/javascript" src="assets/js/libs/backbone/backbone.js"></script>
     <script type="text/javascript" src="assets/js/libs/bootstrap/bootstrap.min.js"></script>
@@ -40,16 +41,24 @@
         
         <div id="<%= cid %>">
             <a role="button" href="#new" class="btn btn-info"><span class="glyphicon glyphicon-plus"></span> add new employee</a>
-            
+            <div id="pagination_container"></div>
+            <div id="pagination_settings_container">
+                Entries per page:
+                <select id="entries_per_page">
+                    <option>10</option>
+                    <option>25</option>
+                    <option>50</option>
+                </select>
+            </div>
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Id</th>
-                        <th>Name</th>
-                        <th>Lastname</th>
-                        <th>Position</th>
-                        <th>Salary</th>
-                        <th>Age</th>
+                        <th data-filter-property="id">Id <span class="glyphicon glyphicon-sort-by-attributes"</span></th>
+                        <th data-filter-property="firstname">Name</th>
+                        <th data-filter-property="lastname">Lastname</th>
+                        <th data-filter-property="position">Position</th>
+                        <th data-filter-property="salary">Salary</th>
+                        <th data-filter-property="age">Age</th>
                         <th>Options</th>
                     </tr>
                 </thead>
@@ -57,22 +66,18 @@
 
                 </tbody>
             </table>
+    
+            
         </div>        
                 
     </script>
     
     
-    <script type="text/template" id="basic_bootstrap_paginator_template">
-        <ul class="pagination pagination-sm" id="<%= cid %>">
-            <li data-type="prev"><a href="#">&laquo;</a></li>
-            <li class="active"><a href="#">1 <span class="sr-only">(current)</span></a></li>
-            <li><a href="#">2</a></li>
-            <li><a href="#">3</a></li>
-            <li><a href="#">4</a></li>
-            <li><a href="#">5</a></li>
-            <li><a href="#">6</a></li>
-            <li><a href="#">&raquo;</a></li>
-        </ul>
+    
+    <script type="text/template" id="basic_bootstrap_paginator_page_template">
+        <li data-type="<%=dataType %>" <% if active %> class="active" <% endif %> >
+            <a href="#"><%= page %></a>
+        </li>
     </script>
   
     
@@ -123,6 +128,7 @@
                 
             <button type="submit" class="btn btn-default btn-primary">Add</button>
             <a href="#" id="cancel_btn" class="btn btn-default btn-warning">Cancel</a>
+            <a href="#" id="random_generator" class="btn btn-default btn-info">Auto-fill</a>
         </form>
     </script>
     

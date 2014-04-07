@@ -1,4 +1,5 @@
 var BootstrapPaginatorView = Backbone.View.extend({
+    
     template: _.template($('#basic_bootstrap_paginator_template').html()),
     
     initialize: function(options) {
@@ -28,7 +29,27 @@ var BootstrapPaginatorView = Backbone.View.extend({
     
     render: function(view) {
         if (view) {
-            $(view).append(this.template({cid: this.cid}));
+            
+            var html = this.template({
+                cid: this.cid, 
+                pageCount: this.pageCount,
+                currentPage: this.currentPage
+            });
+            
+            $(html).appendTo(view).each(function() {
+                
+                var ul = this;
+                
+                $(this).find('a').click(function(e) {
+                    if ($(this).parent().hasClass('active')) {
+                        // DO NOTHING...
+                    } else {
+                        $(ul).find('.active').removeClass('active');
+                        
+                        $(this).parent().addClass('active');
+                    }
+                });
+            });
         }
     }
 });

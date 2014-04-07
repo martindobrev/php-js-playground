@@ -6,7 +6,40 @@ var EmployeeAddView = Backbone.View.extend({
         console.log('Add new employee');
         console.log(this.template);
         var html = $('#employee_add_template').html();
-        $(this.el).html(html);
+        $(this.el).html(html).each(function() {
+            
+            var div = this;
+            
+            $(this).find('#random_generator').click(function(e) {
+                
+                var firstnames = ['Martin', 'Maria', 'Tim', 'Erik', 'Daniel', 'Danilo',
+                    'Tom', 'Patrik', 'Marcel', 'Kamen', 'Julia', 'Silvia', 'Christin',
+                    'Elgin', 'Liusy', 'Jasen', 'Manuela', 'Wolfgang', 'Uwe'];
+                var lastnames = ['Dobrev', 'Deltschew', 'Meier', 'Black', 'White',
+                'Sorgenfrei', 'Problemefrei', 'Reiche', 'Hurst', 'Smithsson', 'Larsson',
+                'Morgensson'];
+            
+                var positions = ['Software Engineer', 'Senior Software Engineer', 'Tester',
+                    'Software Architect', 'CEO', 'CTO', 'Graphic Designer', 'Chief Graphic Designer',
+                    'Sales Manager'];
+                
+                var randomIndex = Math.floor(Math.random() * firstnames.length);
+                $(div).find('[name="firstname"]').val(firstnames[randomIndex]);
+                
+                randomIndex = Math.floor(Math.random() * lastnames.length);
+                $(div).find('[name="lastname"]').val(lastnames[randomIndex]);
+                
+                randomIndex = Math.floor(Math.random() * positions.length);
+                $(div).find('[name="position"]').val(positions[randomIndex]);
+                
+                
+                $(div).find('[name="salary"]').val(Math.floor(Math.random() * 1000) + '00');
+                $(div).find('[name="age"]').val(Math.floor(Math.random() * 30) + 20);
+                
+                e.preventDefault();
+                
+            });
+        });
     },
     
     events: {
