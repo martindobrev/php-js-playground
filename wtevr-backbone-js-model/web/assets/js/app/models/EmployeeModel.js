@@ -14,9 +14,6 @@ var Employee = Backbone.Model.extend({
         console.log("Employee with id: " + this.cid + " created!");
     },
     
-    getValidationAttributes: function() {
-        console.log('VALIDATION_PARAMETER GO HERE!!!');
-    },
     
     validate: function(attrs, options) {
         var errors = [];
@@ -41,7 +38,6 @@ var Employee = Backbone.Model.extend({
     
     sort: function(property) {
         var prop = Employee.fields[property];
-        
         if (prop) {
             if (prop.type === 'string') {
                 return this.get(property);
@@ -49,11 +45,25 @@ var Employee = Backbone.Model.extend({
                 return parseInt(this.get(property));
             }
         }
+    },
+    
+    search: function(query) {
+        var exists = false;
+        for (var attr in this.attributes) {
+            var value = this.get(attr);
+            
+            if ('string' === typeof(value)) {
+                if (value.indexOf(query) !== -1) {
+                    exists = true;
+                    break;
+                }
+            }
+        }
         
+        return exists;
     }
     
 }, {
-    
     fields: {
         firstname: {
             type: 'string',
@@ -82,6 +92,4 @@ var Employee = Backbone.Model.extend({
             min_value: 18
         }
     }
-    
-    
 });

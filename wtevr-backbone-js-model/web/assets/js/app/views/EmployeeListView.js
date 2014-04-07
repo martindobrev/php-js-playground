@@ -50,6 +50,13 @@ var EmployeeListView = Backbone.View.extend({
                 t.setEntriesPerPage(parseInt($(this).val()));
             });
             
+            t.searchBy = '';
+            
+            $('#search_container').find('input').keyup(function() {
+                t.searchBy = $(this).val();
+                t.currentPage = 1;
+                t.renderPage(1);
+            });
             
             
             $(this).find('th[data-filter-property]').mouseover(function() {
@@ -80,7 +87,10 @@ var EmployeeListView = Backbone.View.extend({
                 onPageClick: function(pageNumber, event) {
                     t.currentPage = pageNumber;
                     t.renderPage(pageNumber);
-                    event.preventDefault();
+                    if (event) {
+                        event.preventDefault();
+                    }
+                    
                 }
             });
             
@@ -103,8 +113,15 @@ var EmployeeListView = Backbone.View.extend({
         var t = this;
         $('#' + this.cid).find('tbody').empty();
         
-        
-        t.sortedModels = this.collection.models;
+        if (t.searchBy !== '') {
+            t.sortedModels = _.filter(this.collection.models, function(item) {
+                var result = item.search(t.searchBy);
+                console.log('RESULT IS: ' + result);
+                return item.search(t.searchBy);
+            });
+        } else {
+            t.sortedModels = this.collection.models;
+        }
         
         if (t.sortBy !== null) {
             t.sortedModels = _.sortBy(this.sortedModels, function(item) {

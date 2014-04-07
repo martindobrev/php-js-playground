@@ -8,6 +8,35 @@
     
     <script type="text/javascript">
         var ROOT_PATH = '/php-js-playground/wtevr-backbone-js-model/web';
+        var MODEL = 'employee';
+        var MODEL_FIELDS = {
+            firstname: {
+                type: 'string',
+                length: 20,
+                nullable: false
+            },
+            lastname: {
+                type: 'string',
+                length: 20,
+                nullable: false
+            },
+            position: {
+                type: 'string',
+                length: 50,
+                nullable: false
+            },
+            salary: {
+                type: 'integer',
+                length: 10,
+                nullable: false
+            },
+            age: {
+                type: 'integer',
+                length: 10,
+                nullable: false,
+                min_value: 18
+            }
+        };
     </script>
     
     <script type="text/javascript" src="assets/js/libs/jquery/jquery.js"></script>
@@ -49,6 +78,12 @@
                     <option>25</option>
                     <option>50</option>
                 </select>
+            </div>
+            <div id="search_container">
+                <div class="input-group">
+                    <input type="text" class="form-control">
+                    <span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
+                </div>
             </div>
             <table class="table">
                 <thead>
