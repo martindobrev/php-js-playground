@@ -22,7 +22,8 @@ $(document).ready(function() {
     var Router = Backbone.Router.extend({
         routes: {
             '': 'home',
-            'new' : 'new'
+            'new' : 'new',
+            'edit/:id': 'edit'
         }
     });
     
@@ -31,6 +32,8 @@ $(document).ready(function() {
     
     var createView = new EmployeeAddView();
     createView.setRouter(router);
+    
+    var editView = new EmployeeEditView();
     
     router.on('route:home', function() {
         var employees = new Employees();
@@ -46,6 +49,10 @@ $(document).ready(function() {
     
     router.on('route:new', function() {
         createView.render();
+    });
+    
+    router.on('route:edit', function(id) {
+        editView.render(id);
     });
     
     Backbone.history.start();

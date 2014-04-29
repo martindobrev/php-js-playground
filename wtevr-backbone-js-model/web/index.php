@@ -84,9 +84,6 @@ $app->delete('/backbone/{model}/{id}', function(Request $request, $model, $id) u
             . $model . ' with id ' . $id . ' found!'))
             , Response::HTTP_UNPROCESSABLE_ENTITY);
     }
-    
-    
-    
 });
 
 $app->get('', function() use ($app) {

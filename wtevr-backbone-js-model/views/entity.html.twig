@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Bootstrap 101 Template</title>
+    <title>Basic Entity Template</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8">
     <!-- Bootstrap -->
     <link href="assets/css/bootstrap.min.css" rel="stylesheet" media="screen">
@@ -50,23 +50,16 @@
 
     
     <div class="container">
-        <h1>Hello, Backbone & Underscore!</h1>
+        <h1>Basic Entity Viewer</h1>
         
         <div id="backbone_container">
         
         </div>
     </div>
     
-    <!-- BEGIN TEMPLATES -->
-    <script type="text/template" id="search_template">
-        <div class="input-group">
-        <input type="text" class="form-control" placeholder="Enter search query here">
-        <span class="input-group-addon">seach</span>
-        </div>
-    </script>
     
     
-    <script type="text/template" id="employee_table_template">
+    <script type="text/template" id="table_template">
         
         <div id="<%= cid %>">
             <a role="button" href="#new" class="btn btn-info"><span class="glyphicon glyphicon-plus"></span> add new employee</a>
@@ -88,6 +81,7 @@
             <table class="table">
                 <thead>
                     <tr>
+                        <%= 
                         <th data-filter-property="id">Id <span class="glyphicon glyphicon-sort-by-attributes"</span></th>
                         <th data-filter-property="firstname">Name</th>
                         <th data-filter-property="lastname">Lastname</th>

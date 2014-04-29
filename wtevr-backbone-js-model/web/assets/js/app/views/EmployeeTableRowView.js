@@ -43,7 +43,7 @@ var EmployeeTableRowView = Backbone.View.extend({
     },
 
     events: {
-        'click [data-id="edit_btn"]': 'triggerEditView',
+        //'click [data-id="edit_btn"]': 'triggerEditView',
         'click [data-id="delete_btn"]': 'deleteModel',
         'dblclick td': 'triggerEditPopover'
     },
