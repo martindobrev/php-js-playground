@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Some calculation testing here...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8">
+    <!-- Bootstrap -->
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet" media="screen">
+
+    <script type="text/javascript" src="assets/js/libs/jquery/jquery.js"></script>
+    <script type="text/javascript" src="assets/js/libs/jquery/plugins/jquery.simplePagination.js"></script>
+    <script type="text/javascript" src="assets/js/libs/backbone/underscore.js"></script>
+    <script type="text/javascript" src="assets/js/libs/backbone/backbone.js"></script>
+    <script type="text/javascript" src="assets/js/libs/bootstrap/bootstrap.min.js"></script>
+    <script type="text/javascript" src="assets/js/libs/accounting/accounting.js"></script>
+    <script type="text/javascript" src="assets/js/libs/momentjs/momentjsmin.js"></script>
+    <script type="text/javascript" src="assets/js/libs/log4javascript/log4javascript.js"></script>
+    <script type="text/javascript">
+
+        LOGGER = log4javascript.getDefaultLogger();
+
+        var L = {};
+        L.t = function(msg) {
+            LOGGER.trace(msg);
+        }
+
+        L.d = function(msg) {
+            LOGGER.debug(msg);
+        }
+
+        L.i = function(msg) {
+            LOGGER.info(msg);
+        }
+
+        L.w = function(msg) {
+            LOGGER.warn(msg);
+        }
+
+        L.e = function(msg) {
+            LOGGER.error(msg);
+        }
+
+        L.f = function(msg) {
+            LOGGER.fatal(msg);
+        }
+
+
+
+        accounting.settings = {
+            currency: {
+                symbol : "€",   // default currency symbol is '$'
+                format: "%v %s", // controls output: %s = symbol, %v = value/number (can be object: see below)
+                decimal : ",",  // decimal point separator
+                thousand: ".",  // thousands separator
+                precision : 2   // decimal places
+            },
+            number: {
+                precision : 2,  // default precision on numbers is 0
+                thousand: ".",
+                decimal : ","
+            }
+        }
+    </script>
+
+</head>
+<body>
+
+
+<div class="container">
+    <h1>Hello Calculations...</h1>
+
+    <div id="test_container">
+
+    </div>
+</div>
+
+<!-- UNDERSCORE HTML TEMPLATES -->
+
+
+
+<script type="text/template" id="offer_financial_model_view_template">
+    <div class="well skin-default">
+        <div>
+            <div class="control-group">
+                <label class="control-label" for="laufzeit">Darlehenssumme</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="text" class="input-small" name="loan_amount">
+                        <span class="add-on">€</span>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="control-group">
+                <label class="control-label" for="laufzeit">Laufzeit</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="text" class="input-small" name="duration">
+                        <span class="add-on">J.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="sollzinssatz">Sollzinssatz</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="text" class="input-small" name="debit_interest_percentage">
+                        <span class="add-on">%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="zinsfest">Zins fest</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="text" class="input-small" name="constant_duration"/>
+                        <span class="add-on">J.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="effektivzinssatz">Effektivzinssatz</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="text" class="input-small" name="real_interest_percentage"/>
+                        <span class="add-on">%</span>
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="anschlusszins">Zinssatz Anschlussfinanzierung</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="text" class="input-small" name="overdue_interest_percentage"/>
+                        <span class="add-on">%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="anftilgungssatz">anf. Tilgungssatz</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="text" class="input-small" name="start_amortization_percentage"/>
+                        <span class="add-on">%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="annuitaet">Annuität</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="text" class="input-small" disabled="disabled" name="start_annuity"/>
+                        <span class="add-on">€</span>
+                    </div>
+                </div>
+            </div>
+            <div class="control-group last">
+                <label class="control-label" for="annuitaet2">Annuität für Anschlußzinssatz</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="text" class="input-small" disabled="disabled" name="end_annuity"/>
+                        <span class="add-on">€</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+
+<!-- END UNDERSCORE HTML TEMPLATES -->
+
+
+<!--
+<script src="assets/js/Employee/EmployeeModel.js"></script>
+<script src="assets/js/Employee/EmployeeCollection.js"></script>
+<script src="assets/js/Employee/EmployeeListView.js"></script>
+<script src="assets/js/Employee/EmployeeTableRowView.js"></script>
+<script src="assets/js/Employee/EmployeeListView.js"></script>
+<script src="assets/js/Employee/EmployeeTableRowEditView.js"></script>
+-->
+
+<!-- SCRIPT TEMPLATES -->
+
+<script type="text/javascript" src="assets/js/financialcalc/models/OfferFinancialModel.js"></script>
+<script type="text/javascript" src="assets/js/financialcalc/views/OfferFinancialModelView.js"></script>
+
+<script type="text/javascript">
+
+    var model = new OfferFinancialModel();
+    var view = new OfferFinancialModelView({el : '#test_container', model: model});
+    view.render();
+
+
+
+</script>
+</body>
+</html>

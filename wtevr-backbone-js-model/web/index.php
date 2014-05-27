@@ -92,6 +92,12 @@ $app->get('', function() use ($app) {
     //return 'SILEX is greeting you, Master!';
 });
 
+
+
+$app->get('financialcalc', function() use ($app) {
+    return $app['twig']->render('financialcalc.html.twig');
+});
+
 $app->run();
 
 
