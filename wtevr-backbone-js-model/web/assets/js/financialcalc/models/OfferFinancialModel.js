@@ -22,6 +22,8 @@ var OfferFinancialModel = Backbone.Model.extend({
     },
 
     validate : function(attrs, options) {
+        L.e('VALIDATING MODEL!!!');
+        L.e(attrs);
         var errors = new Array();
         if (attrs.loan_amount <= 0) {
             errors.push({
@@ -30,7 +32,7 @@ var OfferFinancialModel = Backbone.Model.extend({
             });
         }
 
-        if (attrs.duration <= 0) {
+        if (attrs.duration <= 0 || isNaN(attrs.duration)) {
             errors.push({
                 property : 'duration',
                 message : 'duration has to be a positive integer'
@@ -51,24 +53,18 @@ var OfferFinancialModel = Backbone.Model.extend({
             });
         }
 
-        if (attrs.real_interest >= 1 || attrs.real_interest <= 0) {
+        if (attrs.real_interest_percentage >= 1 || attrs.real_interest_percentage <= 0) {
             errors.push({
                 property : 'real_interest',
                 message  : 'real interest has to be less than 1 and greater than 0'
             });
         }
 
-
-        if (attrs.overdue_interest >= 1 || attrs.overdue_interest <= 0) {
-            errors.push({
-                property : 'overdue_interest',
-                message  : 'overdue interest has to be less than 1 and greater than 0'
-            });
-        }
-
-        if (attrs.start_amortization >= 1 || attrs.start_amortization <= 0)
-
         if (errors.length > 0) {
+
+            L.e('THERE ARE SOME ERRORS:');
+            L.e(errors);
+
             return errors;
         }
     },
@@ -110,26 +106,31 @@ var OfferFinancialModel = Backbone.Model.extend({
      *
      *
      *
-     * @param interest Interest value in float representation (for example 4% -> 0.04)
+     * @param interestPercentage Interest value in float representation (for example 4% -> 0.04)
      * @param years Years for the clearance of the credit
      * @param creditAmount
      * @param partsPerYear used to calculate different annuity values. For monthly annuity
      *                     a value of 12 shall be used (a year has 12 months).
      */
-    calculateAnnuity : function(interest, years, creditAmount, amortizationsPerYear) {
+    calculateAnnuity : function(interestPercentage, years, creditAmount, amortizationsPerYear) {
         if (!amortizationsPerYear) {
             amortizationsPerYear = 1;
         }
+        L.d('FUNC calculateAnnuity');
+        L.d('++++ interestPercentage     : ' + interestPercentage);
+        L.d('++++ years                  : ' + years);
+        L.d('++++ creditAmount           : ' + creditAmount);
+        L.d('++++ amortizationsPerYear   : ' + amortizationsPerYear);
 
-        var part = Math.pow((1 + interest), years);
-        var numerator = interest * part;
+        var part = Math.pow((1 + interestPercentage), years);
+        var numerator = interestPercentage * part;
         var denominator = part - 1;
         var annuity = creditAmount * (numerator / denominator);
 
         if (amortizationsPerYear === 1) {
             return annuity;
         } else {
-            return annuity / (amortizationsPerYear + interest / 2 * (amortizationsPerYear - 1));
+            return annuity / (amortizationsPerYear + interestPercentage / 2 * (amortizationsPerYear - 1));
         }
     },
 
@@ -179,6 +180,8 @@ var OfferFinancialModel = Backbone.Model.extend({
                                       , paymentBeginMonth
                                       ) {
 
+        // TODO: TEST A SOLUTION WHERE CALCULATIONS ARE MONTHLY-BASED !!!!!!!
+
         L.w('GETTING AMORTIZATION SCHEDULE:');
         L.w('+++ principal         : ' + principal);
         L.w('+++ monthlyAnnuity    : ' + interestRatePerPeriod);
@@ -204,22 +207,38 @@ var OfferFinancialModel = Backbone.Model.extend({
 
         L.w('-------------------- CALCULATION BEGIN -------------------');
         // TODO: Add second annuity calculation
-        while(Math.round(balance) > 0) {
+        while(balance !== 0 || i < 100) {
 
             var months = 12;
+            var restMonths = 0;
 
-            if (0 === i || time === i) {
-                L.w('---------> FIRST OR LAST YEAR -> CHECKING FOR SPLIT...');
+            /*
+             * If first year, calculate the number of months until the end of the year
+             * For example if the amortization begins in April - the 4th month, this
+             * means that for the months April, Mai ... December there will be an
+             * amortization
+             */
+            if (0 === i && time ) {
                 months = (13 - paymentBeginMonth);
-                if (12 !== months) {
-                    restMonths = 12 - months;
-                }
-                L.w('---------> REST MONTHS: ' + restMonths + ', MONTHS: ' + months);
+                L.w('---------> FIRST YEAR ----> Calculating months: ' + months);
             }
 
-
+            /*
+             * If the begin of the amortization is not in January the
+             * amount of years in which there will be any amortization
+             * is stretched with extra year (the first and the last
+             * will be incomplete). To calculate the interest amount
+             * we have to correctly set the number of months
+             * for the last year's amortization
+             */
+            if (time == i) {
+                months = 12 - (13 - paymentBeginMonth);
+                L.w('--------->  LAST YEAR ----> Calculating months: ' + months);
+            }
 
             var interestAmount = OfferFinancialModel.calculateInterestAmount(balance, interest, annuity, months);
+
+
             var amortizationAmount = annuity * months - interestAmount;
 
             var storeRest = balance;
