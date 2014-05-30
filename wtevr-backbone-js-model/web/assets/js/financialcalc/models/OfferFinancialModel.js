@@ -174,28 +174,33 @@ var OfferFinancialModel = Backbone.Model.extend({
     getAmortizationSchedule : function(interestRatePerPeriod
                                       , principal
                                       , duration
+                                      , realInterestDuration
                                       , realInterest
-                                      , overdueInterests
+                                      , overdueInterest
                                       , paymentBeginYear
                                       , paymentBeginMonth
+                                      , additionalAmortizationCollection
                                       ) {
 
-        // TODO: TEST A SOLUTION WHERE CALCULATIONS ARE MONTHLY-BASED !!!!!!!
+        // TODO: TEST A SOLUTION WHERE CALCULATIONS ARE MONTHLY-BASED (optional)
 
         L.w('GETTING AMORTIZATION SCHEDULE:');
-        L.w('+++ principal         : ' + principal);
-        L.w('+++ monthlyAnnuity    : ' + interestRatePerPeriod);
-        L.w('+++ duration          : ' + duration);
-        L.w('+++ realInterest      : ' + realInterest);
-        L.w('+++ overdueInterest   : ' + overdueInterests);
-        L.w('+++ paymentBeginYear  : ' + paymentBeginYear);
-        L.w('+++ paymentBeginMonth : ' + paymentBeginMonth);
+        L.w('+++ interestRatePerPeriod    : ' + interestRatePerPeriod);
+        L.w('+++ principal                : ' + principal);
+        L.w('+++ duration                 : ' + duration);
+        L.w('+++ realInterestDuration     : ' + realInterestDuration);
+        L.w('+++ realInterest             : ' + realInterest);
+        L.w('+++ overdueInterest          : ' + overdueInterest);
+        L.w('+++ paymentBeginYear         : ' + paymentBeginYear);
+        L.w('+++ paymentBeginMonth        : ' + paymentBeginMonth);
 
         var balance = principal;
         var sumInterest = 0;
         var sumAmortization = 0;
-        var annuity = interestRatePerPeriod;
-        var interest = realInterest;
+        var tempInterestRatePerPeriod = interestRatePerPeriod;
+        var startInterestRatePerPeriod = interestRatePerPeriod;
+        var finalInterestRatePerPeriod = 0;    // Final annuity
+        var tempInterest = realInterest;
 
         var interestCombinationActive = false;
         var overdueAnnuityActive = false;
@@ -204,13 +209,33 @@ var OfferFinancialModel = Backbone.Model.extend({
            // TODO: Extend to support begin from all months
         var time = duration;
 
+        /*
+         * Check that overdue interest parameters are set correctly
+         * 1. the duration of the real interest shall be a valid number
+         *    less than the duration
+         * 2. the overdue interest shall be a valid float
+         *    greater than 0 and less than 1
+         */
+        var overdueInterestCanBeCalculated = (0 < parseInt(realInterestDuration)
+            && false === isNaN(realInterestDuration)
+            && duration > realInterestDuration
+            && false === isNaN(overdueInterest)
+            && 0 < parseFloat(overdueInterest)
+            && 1 > parseFloat(overdueInterest)
+        );
+
 
         L.w('-------------------- CALCULATION BEGIN -------------------');
         // TODO: Add second annuity calculation
-        while(balance !== 0 || i < 100) {
+        while(balance !== 0 || i < time + 1) {
 
             var months = 12;
             var restMonths = 0;
+            var additionalSplitInterest = 0;            // variables to store the additional interest
+            var additionalSplitAmortization = 0;       // and amortization amount
+                                                        // in case a split has taken place
+
+
 
             /*
              * If first year, calculate the number of months until the end of the year
@@ -223,6 +248,37 @@ var OfferFinancialModel = Backbone.Model.extend({
                 L.w('---------> FIRST YEAR ----> Calculating months: ' + months);
             }
 
+
+            // CHECKING FOR SPLIT
+
+            if (i === realInterestDuration) {
+                L.e('!!!!!!!!!! SPLIT REACHED !!!!!!!!!');
+                if (true === overdueInterestCanBeCalculated)  {
+
+                    months = paymentBeginMonth - 1;
+                    if (0 !== months) {
+                        additionalSplitInterest = OfferFinancialModel.calculateInterestAmount(balance,
+                            tempInterest, tempInterestRatePerPeriod, months);
+                        additionalSplitAmortization = tempInterestRatePerPeriod * months - additionalSplitInterest;
+                        balance = balance - additionalSplitAmortization;
+                        months = 13 - paymentBeginMonth;
+                    } else {
+                        months = 12;
+                    }
+
+
+                    // Calculate the new annuity (interest rate per month after the overdue)
+                    finalInterestRatePerPeriod = OfferFinancialModel.calculateAnnuity(overdueInterest,
+                        duration - realInterestDuration, balance, 12);
+                    tempInterestRatePerPeriod = finalInterestRatePerPeriod;
+
+
+                } else {
+                    L.e('!!!!! OVERDUE INTEREST CAN NOT BE CALCULATED !!!!!');
+                }
+            }
+
+
             /*
              * If the begin of the amortization is not in January the
              * amount of years in which there will be any amortization
@@ -232,14 +288,12 @@ var OfferFinancialModel = Backbone.Model.extend({
              * for the last year's amortization
              */
             if (time == i) {
-                months = 12 - (13 - paymentBeginMonth);
+                months = paymentBeginMonth - 1;
                 L.w('--------->  LAST YEAR ----> Calculating months: ' + months);
             }
 
-            var interestAmount = OfferFinancialModel.calculateInterestAmount(balance, interest, annuity, months);
-
-
-            var amortizationAmount = annuity * months - interestAmount;
+            var interestAmount = OfferFinancialModel.calculateInterestAmount(balance, tempInterest, tempInterestRatePerPeriod, months);
+            var amortizationAmount = tempInterestRatePerPeriod * months - interestAmount;
 
             var storeRest = balance;
             balance = balance - amortizationAmount;
@@ -247,14 +301,15 @@ var OfferFinancialModel = Backbone.Model.extend({
             if (balance < 0) {
                 L.e('!!! LAST YEAR !!!');
                 amortizationAmount = storeRest;
-                annuity = interestAmount + amortizationAmount;
+                tempInterestRatePerPeriod = interestAmount + amortizationAmount;
                 balance = 0;
             }
 
-            L.w(i + ' ---> amortization: ' + amortizationAmount + ', interest: ' + interestAmount);
+            L.w(i + ' ---> amortization: ' + (amortizationAmount + additionalSplitAmortization)
+                + ', interest: ' + (interestAmount + additionalSplitInterest));
 
-            sumAmortization += amortizationAmount;
-            sumInterest += interestAmount;
+            sumAmortization += amortizationAmount + additionalSplitAmortization;
+            sumInterest += interestAmount + additionalSplitInterest;
             i++;
             L.w('  ---> sum amort.: ' + sumAmortization + ', sum interest: ' + sumInterest);
             L.e('  ---> REST: ' + balance);

@@ -122,6 +122,7 @@ var OfferFinancialModelView = Backbone.View.extend({
             OfferFinancialModel.getAmortizationSchedule(interestRatePerPeriod
                                                        , this.model.get('loan_amount')
                                                        , this.model.get('duration')
+                                                       , this.model.get('constant_duration')
                                                        , this.model.get('real_interest_percentage')
                                                        , this.model.get('overdue_interest_percentage')
                                                        , year
