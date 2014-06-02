@@ -18,61 +18,82 @@ var OfferFinancialModel = Backbone.Model.extend({
 
     initialize: function() {
         this.listenTo(this, 'change:start_amortization_percentage', this.onStartAmortizationChange);
-        this.listenTo(this, 'change:duration')
+        this.listenTo(this, 'change:duration', this.onMainParameterChange);
+        this.listenTo(this, 'change:real_interest_percentage', this.onMainParameterChange);
+        this.listenTo(this, 'change:loan_amount', this.onMainParameterChange);
     },
 
     validate : function(attrs, options) {
         L.e('VALIDATING MODEL!!!');
         L.e(attrs);
         var errors = new Array();
-        if (attrs.loan_amount <= 0) {
-            errors.push({
-                property : 'loan_amount',
-                message  : 'load amount has to be a positive number'
-            });
+        if (attrs.loan_amount !== undefined) {
+            if (attrs.loan_amount <= 0) {
+                errors.push({
+                    property : 'loan_amount',
+                    message  : 'load amount has to be a positive number'
+                });
+            }            
         }
-
-        if (attrs.duration <= 0 || isNaN(attrs.duration)) {
-            errors.push({
-                property : 'duration',
-                message : 'duration has to be a positive integer'
-            });
+        
+        if (attrs.duration !== undefined) {
+            if (attrs.duration <= 0 || isNaN(attrs.duration)) {
+                errors.push({
+                    property : 'duration',
+                    message : 'duration has to be a positive integer'
+                });
+            }            
         }
-
-        if (attrs.debit_interest >= 1 || attrs.debit_interest <= 0) {
-            errors.push({
-                property : 'debit_interest',
-                message  : 'debit interest has to be less than 1 and greater than 0'
-            });
+        
+        if (attrs.debit_interest !== undefined) {
+            if (attrs.debit_interest >= 1 || attrs.debit_interest <= 0) {
+                errors.push({
+                    property : 'debit_interest',
+                    message  : 'debit interest has to be less than 1 and greater than 0'
+                });
+            }            
         }
-
-        if (attrs.constant_duration > attrs.duration) {
-            errors.push({
-                property : 'constant_duration',
-                message  : 'constant duration cannot be greater than duration'
-            });
+        
+        if (attrs.constant_duration !== undefined) {
+            if (attrs.constant_duration > attrs.duration) {
+                errors.push({
+                    property : 'constant_duration',
+                    message  : 'constant duration cannot be greater than duration'
+                });
+            }            
         }
-
-        if (attrs.real_interest_percentage >= 1 || attrs.real_interest_percentage <= 0) {
-            errors.push({
-                property : 'real_interest',
-                message  : 'real interest has to be less than 1 and greater than 0'
-            });
+        
+        if (attrs.real_interest_percentage !== undefined) {
+            if (attrs.real_interest_percentage >= 1 || attrs.real_interest_percentage <= 0) {
+                errors.push({
+                    property : 'real_interest',
+                    message  : 'real interest has to be less than 1 and greater than 0'
+                });
+            }            
+        }
+        
+        if (attrs.start_amortization_percentage !== undefined) {
+            if (attrs.start_amortization_percentage >= 1 || attrs.start_amortization_percentage <= 0) {
+                errors.push({
+                    property: 'start_amortization_percentage',
+                    message: 'start amortization percentage cannot be less than 1 or greater than 0'
+                });
+            }
         }
 
         if (errors.length > 0) {
 
             L.e('THERE ARE SOME ERRORS:');
-            L.e(errors);
+            _.each(errors, function(e) {
+               L.e('---> ' + e.property + ' : ' + e.message); 
+            });
 
             return errors;
         }
     },
 
     onStartAmortizationChange : function(e) {
-        //L.d('on start amortization change...');
-        //L.d('THIS IS: ');
-        //L.d(this);
+L.d('on start amortization change...');
 
         var startAmortizationPercentage = e.changed.start_amortization_percentage;
 
@@ -83,10 +104,10 @@ var OfferFinancialModel = Backbone.Model.extend({
         });
 
         if (undefined !== valuesValid) {
-            //L.w('CANNOT CALCULATE duration etc.., values invalid!');
+L.w('CANNOT CALCULATE duration etc.., values invalid!');
 
         } else {
-            //L.d('Values valid, calculating duration...');
+L.d('Values valid, calculating duration...');
 
             var duration = Math.ceil(OfferFinancialModel.calculateDurationInYears(
                 this.get('real_interest_percentage'), startAmortizationPercentage
@@ -97,6 +118,32 @@ var OfferFinancialModel = Backbone.Model.extend({
 
             this.set({'start_annuity' : annuity, 'duration' : duration}, {silent: true});
             this.trigger('silentchange', {changed: {annuity : annuity, duration : duration}});
+        }
+    },
+    
+    onMainParameterChange : function(e) {
+        var valuesValid = this.validate({
+            duration : this.get('duration'),
+            real_interest_percentage: this.get('real_interest_percentage'),
+            loan_amount: this.get('loan_amount')
+        });
+        
+        if (undefined !== valuesValid) {
+            L.w('CANNOT CALCULATE START AMORTIZATION, values INVALID!!!');
+        } else {
+            var annuity = OfferFinancialModel.calculateAnnuity(this.get('real_interest_percentage'), 
+                this.get('duration'), this.get('loan_amount'), 12);
+                
+            var interestAmount = OfferFinancialModel.calculateInterestAmount(this.get('loan_amount'),
+                this.get('real_interest_percentage'), annuity, 12);
+            
+            var startAmortizationPercentage = interestAmount/ this.get('loan_amount') * 100;
+            
+            L.e('START AMORTIZATION: ' + startAmortizationPercentage);
+            
+            this.set({'start_amortization_percentage' : startAmortizationPercentage, 'start_annuity' : annuity * 12}, {silent: true});
+            this.trigger('silentchange', {changed: {start_amortization_amount: startAmortizationPercentage, annuity: annuity}});
+            
         }
     }
 
@@ -116,11 +163,11 @@ var OfferFinancialModel = Backbone.Model.extend({
         if (!amortizationsPerYear) {
             amortizationsPerYear = 1;
         }
-        L.d('FUNC calculateAnnuity');
-        L.d('++++ interestPercentage     : ' + interestPercentage);
-        L.d('++++ years                  : ' + years);
-        L.d('++++ creditAmount           : ' + creditAmount);
-        L.d('++++ amortizationsPerYear   : ' + amortizationsPerYear);
+//L.d('FUNC calculateAnnuity');
+//L.d('++++ interestPercentage     : ' + interestPercentage);
+//L.d('++++ years                  : ' + years);
+//L.d('++++ creditAmount           : ' + creditAmount);
+//L.d('++++ amortizationsPerYear   : ' + amortizationsPerYear);
 
         var part = Math.pow((1 + interestPercentage), years);
         var numerator = interestPercentage * part;
@@ -147,11 +194,11 @@ var OfferFinancialModel = Backbone.Model.extend({
      * @param months            - number of months (default is 12)
      */
     calculateInterestAmount: function(sum, interest, annuity, months) {
-        L.d('FUNC calculateInterestAmount');
-        L.d('++++ sum: ' + sum);
-        L.d('++++ interest: ' + interest);
-        L.d('++++ annuity: ' + annuity);
-        L.d('++++ months: '  + months);
+//L.d('FUNC calculateInterestAmount');
+//L.d('++++ sum: ' + sum);
+//L.d('++++ interest: ' + interest);
+//L.d('++++ annuity: ' + annuity);
+//L.d('++++ months: '  + months);
 
         if (!months) months = 12;
 
@@ -160,7 +207,7 @@ var OfferFinancialModel = Backbone.Model.extend({
             amount = (sum * interest * months / 12);
         }
 
-        L.d('<------- ' + amount);
+//L.d('<------- ' + amount);
 
         return amount;
     },
@@ -191,18 +238,18 @@ var OfferFinancialModel = Backbone.Model.extend({
                                       , additionalAmortizationCollection
                                       ) {
 
-        // TODO: TEST A SOLUTION WHERE CALCULATIONS ARE MONTHLY-BASED (optional)
-        /*
-        L.w('GETTING AMORTIZATION SCHEDULE:');
-        L.w('+++ interestRatePerPeriod    : ' + interestRatePerPeriod);
-        L.w('+++ principal                : ' + principal);
-        L.w('+++ duration                 : ' + duration);
-        L.w('+++ realInterestDuration     : ' + realInterestDuration);
-        L.w('+++ realInterest             : ' + realInterest);
-        L.w('+++ overdueInterest          : ' + overdueInterest);
-        L.w('+++ paymentBeginYear         : ' + paymentBeginYear);
-        L.w('+++ paymentBeginMonth        : ' + paymentBeginMonth);
-        */
+// TODO: TEST A SOLUTION WHERE CALCULATIONS ARE MONTHLY-BASED (optional)
+/*
+L.w('GETTING AMORTIZATION SCHEDULE:');
+L.w('+++ interestRatePerPeriod    : ' + interestRatePerPeriod);
+L.w('+++ principal                : ' + principal);
+L.w('+++ duration                 : ' + duration);
+L.w('+++ realInterestDuration     : ' + realInterestDuration);
+L.w('+++ realInterest             : ' + realInterest);
+L.w('+++ overdueInterest          : ' + overdueInterest);
+L.w('+++ paymentBeginYear         : ' + paymentBeginYear);
+L.w('+++ paymentBeginMonth        : ' + paymentBeginMonth);
+*/
 
 
         var balance = principal;
@@ -217,7 +264,6 @@ var OfferFinancialModel = Backbone.Model.extend({
         var overdueAnnuityActive = false;
         var i = 0;
         var restMonths = 12;
-           // TODO: Extend to support begin from all months
         var time = duration;
 
         /*
@@ -263,7 +309,7 @@ var OfferFinancialModel = Backbone.Model.extend({
             // CHECKING FOR SPLIT
 
 
-            L.w(i + '------------ BALANCE BEFORE: ' + balance);
+//L.w(i + '------------ BALANCE BEFORE: ' + balance);
 
             if (i === realInterestDuration) {
                 //L.e('!!!!!!!!!! SPLIT REACHED !!!!!!!!!');
@@ -271,31 +317,25 @@ var OfferFinancialModel = Backbone.Model.extend({
 
                     months = paymentBeginMonth - 1;
                     if (0 !== months) {
-L.w('!!!! SPLITTING AMOUNTS ON i: ' + i);
+//L.w('!!!! SPLITTING AMOUNTS ON i: ' + i);
                         additionalSplitInterest = OfferFinancialModel.calculateInterestAmount(balance,
                             tempInterest, tempInterestRatePerPeriod, months);
                         additionalSplitAmortization = tempInterestRatePerPeriod * months - additionalSplitInterest;
-L.w('------> additionalSplitInterest       : ' + additionalSplitInterest);
-L.w('------> additionalSplitAmortization   : ' + additionalSplitAmortization);
-L.w('------> First temp months: ' + months);
+//L.w('------> additionalSplitInterest       : ' + additionalSplitInterest);
+//L.w('------> additionalSplitAmortization   : ' + additionalSplitAmortization);
+//L.w('------> First temp months: ' + months);
                         balance = balance - additionalSplitAmortization;
 
-                        L.w(i + '-------------> BALANCE AFTER SPLIT SUBTRACTION: ' + balance);
+//L.w(i + '-------------> BALANCE AFTER SPLIT SUBTRACTION: ' + balance);
 
                         months = 13 - paymentBeginMonth;
-                        L.w('------> Second temp months: ' + months);
+//L.w('------> Second temp months: ' + months);
 
                     } else {
 //L.w('!!!! SPLIT YEAR REACHED, BUT MONTHS IS 12!!!!');
                         months = 12;
                     }
-
-
-
-                    //L.w('')
-
-
-
+                    
                     // Calculate the new annuity (interest rate per month after the overdue)
                     finalInterestRatePerPeriod = OfferFinancialModel.calculateAnnuity(overdueInterest,
                         duration - realInterestDuration, balance, 12);
@@ -325,14 +365,14 @@ L.w('------> First temp months: ' + months);
             var interestAmount = OfferFinancialModel.calculateInterestAmount(balance, tempInterest, tempInterestRatePerPeriod, months);
             var amortizationAmount = tempInterestRatePerPeriod * months - interestAmount;
 
-            L.w(i + '---- amortization amount: ' + amortizationAmount);
-            L.e(i + '---- TEMP INTEREST PER PERIOD IS: ' + tempInterestRatePerPeriod);
+//L.w(i + '---- amortization amount: ' + amortizationAmount);
+//L.e(i + '---- TEMP INTEREST PER PERIOD IS: ' + tempInterestRatePerPeriod);
 
             var storeRest = balance;
             balance = balance - amortizationAmount;
-            L.w(i + '------------ BALANCE AFTER: ' + balance);
+//L.w(i + '------------ BALANCE AFTER: ' + balance);
             if (balance < 0) {
-                L.e('!!! LAST YEAR - BALANCE IS < 0');
+//L.e('!!! LAST YEAR - BALANCE IS < 0');
                 amortizationAmount = storeRest;
                 tempInterestRatePerPeriod = interestAmount + amortizationAmount;
                 balance = 0;

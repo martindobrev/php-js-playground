@@ -129,12 +129,12 @@ var OfferFinancialModelView = Backbone.View.extend({
                                                        , month
                                                        );
 
-            L.w('************************* PRINTING RESULT OUT ***********************');
-            for (var i = 0; i < result.schedule.length; i++) {
-                L.d(result.schedule[i]);
-            }
-            L.e('TOTAL INTEREST: ' + result.totalInterest);
-            L.e('TOTAL AMORTIZATION: ' + result.totalAmortization);
+//L.w('************************* PRINTING RESULT OUT ***********************');
+//for (var i = 0; i < result.schedule.length; i++) {
+//    L.d(result.schedule[i]);
+//}
+//L.e('TOTAL INTEREST: ' + result.totalInterest);
+//L.e('TOTAL AMORTIZATION: ' + result.totalAmortization);
 
         }
     }
