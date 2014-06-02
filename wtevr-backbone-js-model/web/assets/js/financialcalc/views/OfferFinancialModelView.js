@@ -119,7 +119,7 @@ var OfferFinancialModelView = Backbone.View.extend({
             }
 
 
-            OfferFinancialModel.getAmortizationSchedule(interestRatePerPeriod
+            var result = OfferFinancialModel.getAmortizationSchedule(interestRatePerPeriod
                                                        , this.model.get('loan_amount')
                                                        , this.model.get('duration')
                                                        , this.model.get('constant_duration')
@@ -128,6 +128,14 @@ var OfferFinancialModelView = Backbone.View.extend({
                                                        , year
                                                        , month
                                                        );
+
+            L.w('************************* PRINTING RESULT OUT ***********************');
+            for (var i = 0; i < result.schedule.length; i++) {
+                L.d(result.schedule[i]);
+            }
+            L.e('TOTAL INTEREST: ' + result.totalInterest);
+            L.e('TOTAL AMORTIZATION: ' + result.totalAmortization);
+
         }
     }
 });

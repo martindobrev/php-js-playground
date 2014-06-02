@@ -127,11 +127,11 @@ var OfferFinancialModel = Backbone.Model.extend({
         var denominator = part - 1;
         var annuity = creditAmount * (numerator / denominator);
 
-        if (amortizationsPerYear === 1) {
-            return annuity;
-        } else {
-            return annuity / (amortizationsPerYear + interestPercentage / 2 * (amortizationsPerYear - 1));
+        if (amortizationsPerYear !== 1) {
+            annuity = annuity / (amortizationsPerYear + interestPercentage / 2 * (amortizationsPerYear - 1));
         }
+        L.d('<------ ' + annuity);
+        return annuity;
     },
 
     /**
@@ -147,12 +147,21 @@ var OfferFinancialModel = Backbone.Model.extend({
      * @param months            - number of months (default is 12)
      */
     calculateInterestAmount: function(sum, interest, annuity, months) {
+        L.d('FUNC calculateInterestAmount');
+        L.d('++++ sum: ' + sum);
+        L.d('++++ interest: ' + interest);
+        L.d('++++ annuity: ' + annuity);
+        L.d('++++ months: '  + months);
+
         if (!months) months = 12;
 
         var amount = (sum * interest * months / 12) - (annuity * interest * (months - 1)) / 2;
         if (amount < 0) {
             amount = (sum * interest * months / 12);
         }
+
+        L.d('<------- ' + amount);
+
         return amount;
     },
 
@@ -183,7 +192,7 @@ var OfferFinancialModel = Backbone.Model.extend({
                                       ) {
 
         // TODO: TEST A SOLUTION WHERE CALCULATIONS ARE MONTHLY-BASED (optional)
-
+        /*
         L.w('GETTING AMORTIZATION SCHEDULE:');
         L.w('+++ interestRatePerPeriod    : ' + interestRatePerPeriod);
         L.w('+++ principal                : ' + principal);
@@ -193,6 +202,8 @@ var OfferFinancialModel = Backbone.Model.extend({
         L.w('+++ overdueInterest          : ' + overdueInterest);
         L.w('+++ paymentBeginYear         : ' + paymentBeginYear);
         L.w('+++ paymentBeginMonth        : ' + paymentBeginMonth);
+        */
+
 
         var balance = principal;
         var sumInterest = 0;
@@ -224,10 +235,11 @@ var OfferFinancialModel = Backbone.Model.extend({
             && 1 > parseFloat(overdueInterest)
         );
 
+        var schedule = new Array();
 
-        L.w('-------------------- CALCULATION BEGIN -------------------');
-        // TODO: Add second annuity calculation
-        while(balance !== 0 || i < time + 1) {
+        //L.w('-------------------- CALCULATION BEGIN -------------------');
+
+        while(balance !== 0) {
 
             var months = 12;
             var restMonths = 0;
@@ -243,38 +255,56 @@ var OfferFinancialModel = Backbone.Model.extend({
              * means that for the months April, Mai ... December there will be an
              * amortization
              */
-            if (0 === i && time ) {
+            if (0 === i) {
                 months = (13 - paymentBeginMonth);
-                L.w('---------> FIRST YEAR ----> Calculating months: ' + months);
+                //L.w('---------> FIRST YEAR ----> Calculating months: ' + months);
             }
-
 
             // CHECKING FOR SPLIT
 
+
+            L.w(i + '------------ BALANCE BEFORE: ' + balance);
+
             if (i === realInterestDuration) {
-                L.e('!!!!!!!!!! SPLIT REACHED !!!!!!!!!');
+                //L.e('!!!!!!!!!! SPLIT REACHED !!!!!!!!!');
                 if (true === overdueInterestCanBeCalculated)  {
 
                     months = paymentBeginMonth - 1;
                     if (0 !== months) {
+L.w('!!!! SPLITTING AMOUNTS ON i: ' + i);
                         additionalSplitInterest = OfferFinancialModel.calculateInterestAmount(balance,
                             tempInterest, tempInterestRatePerPeriod, months);
                         additionalSplitAmortization = tempInterestRatePerPeriod * months - additionalSplitInterest;
+L.w('------> additionalSplitInterest       : ' + additionalSplitInterest);
+L.w('------> additionalSplitAmortization   : ' + additionalSplitAmortization);
+L.w('------> First temp months: ' + months);
                         balance = balance - additionalSplitAmortization;
+
+                        L.w(i + '-------------> BALANCE AFTER SPLIT SUBTRACTION: ' + balance);
+
                         months = 13 - paymentBeginMonth;
+                        L.w('------> Second temp months: ' + months);
+
                     } else {
+//L.w('!!!! SPLIT YEAR REACHED, BUT MONTHS IS 12!!!!');
                         months = 12;
                     }
+
+
+
+                    //L.w('')
+
 
 
                     // Calculate the new annuity (interest rate per month after the overdue)
                     finalInterestRatePerPeriod = OfferFinancialModel.calculateAnnuity(overdueInterest,
                         duration - realInterestDuration, balance, 12);
                     tempInterestRatePerPeriod = finalInterestRatePerPeriod;
-
+                    tempInterest = overdueInterest;
+                    L.e('SETTING TEMP INTEREST TO: ' + overdueInterest);
 
                 } else {
-                    L.e('!!!!! OVERDUE INTEREST CAN NOT BE CALCULATED !!!!!');
+//L.e('!!!!! OVERDUE INTEREST CAN NOT BE CALCULATED !!!!!');
                 }
             }
 
@@ -289,31 +319,75 @@ var OfferFinancialModel = Backbone.Model.extend({
              */
             if (time == i) {
                 months = paymentBeginMonth - 1;
-                L.w('--------->  LAST YEAR ----> Calculating months: ' + months);
+//L.w('--------->  LAST YEAR ----> Calculating months: ' + months);
             }
 
             var interestAmount = OfferFinancialModel.calculateInterestAmount(balance, tempInterest, tempInterestRatePerPeriod, months);
             var amortizationAmount = tempInterestRatePerPeriod * months - interestAmount;
 
+            L.w(i + '---- amortization amount: ' + amortizationAmount);
+            L.e(i + '---- TEMP INTEREST PER PERIOD IS: ' + tempInterestRatePerPeriod);
+
             var storeRest = balance;
             balance = balance - amortizationAmount;
-
+            L.w(i + '------------ BALANCE AFTER: ' + balance);
             if (balance < 0) {
-                L.e('!!! LAST YEAR !!!');
+                L.e('!!! LAST YEAR - BALANCE IS < 0');
                 amortizationAmount = storeRest;
                 tempInterestRatePerPeriod = interestAmount + amortizationAmount;
                 balance = 0;
+
             }
 
-            L.w(i + ' ---> amortization: ' + (amortizationAmount + additionalSplitAmortization)
-                + ', interest: ' + (interestAmount + additionalSplitInterest));
+//L.w(i + ' ---> amortization: ' + (amortizationAmount + additionalSplitAmortization)
+//                + ', interest: ' + (interestAmount + additionalSplitInterest));
+//L.w('  ---> sum: ' + (amortizationAmount + additionalSplitAmortization
+//                        + interestAmount + additionalSplitInterest));
 
             sumAmortization += amortizationAmount + additionalSplitAmortization;
             sumInterest += interestAmount + additionalSplitInterest;
+
+
+            var yearOverview = {
+                count: i,
+                year: i + paymentBeginYear,
+                interest: interestAmount,
+                amortization: amortizationAmount,
+                balance: balance,
+                temporaryAmortization: sumAmortization,
+                temporaryInterest: sumInterest
+            }
+
+
+            schedule.push(yearOverview);
+
+
             i++;
-            L.w('  ---> sum amort.: ' + sumAmortization + ', sum interest: ' + sumInterest);
-            L.e('  ---> REST: ' + balance);
+//L.w('  ---> sum amort.: ' + sumAmortization + ', sum interest: ' + sumInterest);
+//L.e('  ---> REST: ' + balance);
         }
-        L.e('********* SUM AMORT: ' + sumAmortization + ', SUM INTEREST: ' + sumInterest);
+//L.e('********* SUM AMORT: ' + sumAmortization + ', SUM INTEREST: ' + sumInterest);
+
+
+        return {
+            startInterestRate: {
+                monthly: startInterestRatePerPeriod,
+                yearly: startInterestRatePerPeriod * 12
+            },
+            finalInterestRate: {
+                monthly: finalInterestRatePerPeriod,
+                yearly: finalInterestRatePerPeriod * 12
+            },
+
+            startInterestPercentage: realInterest,
+            finalInterestPercentage: tempInterest,
+            duration: duration,
+            startInterestDuration: realInterestDuration,
+            overdueInterestCalculable: overdueInterestCanBeCalculated,
+            schedule: schedule,
+            totalAmortization: sumAmortization,
+            totalInterest: sumInterest
+        };
+
     }
 });
