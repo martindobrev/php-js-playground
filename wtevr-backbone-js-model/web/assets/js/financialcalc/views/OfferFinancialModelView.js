@@ -4,7 +4,6 @@
 
 
 var OfferFinancialModelView = Backbone.View.extend({
-    el: '#test_backbone_offer_container',
     template: _.template($('#offer_financial_model_view_template').html()),
 
     initialize: function() {
@@ -22,7 +21,13 @@ var OfferFinancialModelView = Backbone.View.extend({
 
     render: function() {
         L.d('RENDERING TEST VIEW...');
-        this.$el.html(this.template());
+        var t = this;
+        $(this.template({model: this.model})).appendTo(this.$el).each(function() {
+            $(this).find('i').parent().click(function() {
+                L.w('TRIGGERING REMOVE ELEMENT EVENT!');
+                t.trigger('removeelement', t, t.model);
+            });
+        });
     },
 
     events: {
@@ -116,8 +121,6 @@ var OfferFinancialModelView = Backbone.View.extend({
 //L.e('TOTAL AMORTIZATION: ' + result.totalAmortization);
 
         }
-
-
     },
 
     onSilentModelChange : function(change) {

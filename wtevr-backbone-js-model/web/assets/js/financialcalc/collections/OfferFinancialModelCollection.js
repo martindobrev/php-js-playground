@@ -3,5 +3,15 @@
  */
 
 var OfferFinancialModelCollection = Backbone.Collection.extend({
-    model: OfferFinancialModel
+    model: OfferFinancialModel,
+
+    initialize: function() {
+        this.listenTo(this, 'change', this.onChange);
+    },
+
+    onChange: function(obj) {
+        L.e('ON CHANGE FROM MODEL_COLLECTION');
+        L.e('---> model ' + obj.cid + ' is valid: ' + obj.isValid());
+    }
+
 });

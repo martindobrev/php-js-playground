@@ -43,8 +43,6 @@
             LOGGER.fatal(msg);
         }
 
-
-
         accounting.settings = {
             currency: {
                 symbol : "€",   // default currency symbol is '$'
@@ -68,8 +66,13 @@
 <div class="container">
     <h1>Hello Calculations...</h1>
 
+    <label>Year: </label>
+    <input type="text" id="test_year"/>
+    <label>Month: </label>
+    <input type="text" id="test_month"/>
 
-    <label>Year: </label><input type="text" id="test_year"/><label>Month: </label><input type="text" id="test_month"/>
+    <a class="btn btn-default" id="add_loan_btn"><i class="icon glyphicon-plus"></i>add financial model</a>
+
     <div id="test_container">
 
     </div>
@@ -81,6 +84,9 @@
 
 <script type="text/template" id="offer_financial_model_view_template">
     <div class="well skin-default">
+        <div class="pull-right">
+            <a class="btn btn-default"><i class="glyphicon glyphicon-remove"></i></a>
+        </div>
         <div>
             <div class="control-group">
                 <label class="control-label" for="laufzeit">Darlehenssumme</label>
@@ -91,7 +97,6 @@
                     </div>
                 </div>
             </div>
-
 
             <div class="control-group">
                 <label class="control-label" for="laufzeit">Laufzeit</label>
@@ -187,14 +192,28 @@
 <!-- SCRIPT TEMPLATES -->
 
 <script type="text/javascript" src="assets/js/financialcalc/models/OfferFinancialModel.js"></script>
+<script type="text/javascript" src="assets/js/financialcalc/collections/OfferFinancialModelCollection.js"></script>
 <script type="text/javascript" src="assets/js/financialcalc/views/OfferFinancialModelView.js"></script>
+<script type="text/javascript" src="assets/js/financialcalc/views/OfferFinancialModelCollectionView.js"></script>
 
 <script type="text/javascript">
 
     var model = new OfferFinancialModel();
-    var view = new OfferFinancialModelView({el : '#test_container', model: model});
+
+    var modelCollection = new OfferFinancialModelCollection([model]);
+
+    var view = new OfferFinancialModelCollectionView({
+        el: '#test_container', collection: modelCollection
+    });
+
+    //var view = new OfferFinancialModelView({el : '#test_container', model: model});
     view.render();
 
+
+    $('#add_loan_btn').click(function() {
+        var m = new OfferFinancialModel();
+        modelCollection.add(m);
+    });
 
 
 </script>
