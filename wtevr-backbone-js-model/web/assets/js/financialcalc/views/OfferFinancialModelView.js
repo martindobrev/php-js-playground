@@ -14,9 +14,7 @@ var OfferFinancialModelView = Backbone.View.extend({
             L.d('Initializing view');
 
             this.listenTo(this.model, 'change', this.onModelChange);
-            this.listenTo(this.model, 'silentchange', this.onSilentModelChange);
-
-
+            this.listenTo(this.model, 'silentchange', this.onModelChange);
         } else {
             L.w('NO MODEL FOR THE FINANCIAL VIEW SPECIFIED!!!');
         }
@@ -56,9 +54,67 @@ var OfferFinancialModelView = Backbone.View.extend({
 
 
         for (var i in change.changed) {
+
             if (i !== this.focusedOn) {
-                this.$el.find('input[name="' + i + '"]').val(change.changed[i]);
+                if (i === 'start_amortization_percentage') {
+                    this.$el.find('input[name="' + i + '"]').val(accounting.formatNumber(change.changed[i] * 100));
+
+                } else if (i === 'start_annuity' || i === 'end_annuity') {
+                    this.$el.find('input[name="' + i + '"]').val(accounting.formatNumber(change.changed[i] * 12));
+                } else {
+                    this.$el.find('input[name="' + i + '"]').val(change.changed[i]);
+                }
             }
+        }
+
+
+        if (this.model.isValid()) {
+            L.w('MODEL IS VALID!!!!');
+
+
+            var interestRatePerPeriod = OfferFinancialModel.calculateAnnuity(this.model.get('real_interest_percentage')
+                , this.model.get('duration')
+                , this.model.get('loan_amount')
+                , 12);
+
+
+            var year = parseInt($('#test_year').val());
+            var month = parseInt($('#test_month').val());
+
+            if (isNaN(year)) {
+                year = 2014;
+            }
+
+            if (isNaN(month)) {
+                month = 6;
+            }
+
+
+            var result = OfferFinancialModel.getAmortizationSchedule(interestRatePerPeriod
+                , this.model.get('loan_amount')
+                , this.model.get('duration')
+                , this.model.get('constant_duration')
+                , this.model.get('real_interest_percentage')
+                , this.model.get('overdue_interest_percentage')
+                , year
+                , month
+            );
+
+
+            if (result.overdueInterestCalculable) {
+                this.$el.find('input[name="end_annuity"]').val(accounting.formatNumber(result.finalInterestRate.yearly));
+            } else {
+                this.$el.find('input[name="end_annuity"]').val('');
+            }
+
+
+//L.w('************************* PRINTING RESULT OUT ***********************');
+//for (var i = 0; i < result.schedule.length; i++) {
+//    L.d(result.schedule[i]);
+//}
+//L.e('TOTAL INTEREST: ' + result.totalInterest);
+//L.e('TOTAL AMORTIZATION: ' + result.totalAmortization);
+
         }
 
 
@@ -94,48 +150,6 @@ var OfferFinancialModelView = Backbone.View.extend({
             var preparedValue = parseFloat(accounting.unformat($(e.target).val(), ',') / 100, 4);
             L.d('----> Setting prepared percentage value: ' + preparedValue);
             this.model.set(propertyName, preparedValue);
-        }
-
-
-        if (this.model.isValid()) {
-            L.w('MODEL IS VALID!!!!');
-
-
-            var interestRatePerPeriod = OfferFinancialModel.calculateAnnuity(this.model.get('real_interest_percentage')
-                                                                            , this.model.get('duration')
-                                                                            , this.model.get('loan_amount')
-                                                                            , 12);
-
-
-            var year = parseInt($('#test_year').val());
-            var month = parseInt($('#test_month').val());
-
-            if (isNaN(year)) {
-                year = 2014;
-            }
-
-            if (isNaN(month)) {
-                month = 6;
-            }
-
-
-            var result = OfferFinancialModel.getAmortizationSchedule(interestRatePerPeriod
-                                                       , this.model.get('loan_amount')
-                                                       , this.model.get('duration')
-                                                       , this.model.get('constant_duration')
-                                                       , this.model.get('real_interest_percentage')
-                                                       , this.model.get('overdue_interest_percentage')
-                                                       , year
-                                                       , month
-                                                       );
-
-//L.w('************************* PRINTING RESULT OUT ***********************');
-//for (var i = 0; i < result.schedule.length; i++) {
-//    L.d(result.schedule[i]);
-//}
-//L.e('TOTAL INTEREST: ' + result.totalInterest);
-//L.e('TOTAL AMORTIZATION: ' + result.totalAmortization);
-
         }
     }
 });

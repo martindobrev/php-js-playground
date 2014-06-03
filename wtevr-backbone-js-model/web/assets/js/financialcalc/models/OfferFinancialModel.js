@@ -24,8 +24,8 @@ var OfferFinancialModel = Backbone.Model.extend({
     },
 
     validate : function(attrs, options) {
-        L.e('VALIDATING MODEL!!!');
-        L.e(attrs);
+//L.e('VALIDATING MODEL!!!');
+//L.e(attrs);
         var errors = new Array();
         if (attrs.loan_amount !== undefined) {
             if (attrs.loan_amount <= 0) {
@@ -83,9 +83,9 @@ var OfferFinancialModel = Backbone.Model.extend({
 
         if (errors.length > 0) {
 
-            L.e('THERE ARE SOME ERRORS:');
+//L.e('THERE ARE SOME ERRORS:');
             _.each(errors, function(e) {
-               L.e('---> ' + e.property + ' : ' + e.message); 
+//L.e('---> ' + e.property + ' : ' + e.message);
             });
 
             return errors;
@@ -93,7 +93,7 @@ var OfferFinancialModel = Backbone.Model.extend({
     },
 
     onStartAmortizationChange : function(e) {
-L.d('on start amortization change...');
+//L.d('on start amortization change...');
 
         var startAmortizationPercentage = e.changed.start_amortization_percentage;
 
@@ -104,10 +104,10 @@ L.d('on start amortization change...');
         });
 
         if (undefined !== valuesValid) {
-L.w('CANNOT CALCULATE duration etc.., values invalid!');
+//L.w('CANNOT CALCULATE duration etc.., values invalid!');
 
         } else {
-L.d('Values valid, calculating duration...');
+//L.d('Values valid, calculating duration...');
 
             var duration = Math.ceil(OfferFinancialModel.calculateDurationInYears(
                 this.get('real_interest_percentage'), startAmortizationPercentage
@@ -115,6 +115,8 @@ L.d('Values valid, calculating duration...');
 
             var annuity = (this.get('real_interest_percentage') + startAmortizationPercentage)
                 * this.get('loan_amount');
+
+            var annuity = annuity / 12;
 
             this.set({'start_annuity' : annuity, 'duration' : duration}, {silent: true});
             this.trigger('silentchange', {changed: {annuity : annuity, duration : duration}});
@@ -129,7 +131,7 @@ L.d('Values valid, calculating duration...');
         });
         
         if (undefined !== valuesValid) {
-            L.w('CANNOT CALCULATE START AMORTIZATION, values INVALID!!!');
+//L.w('CANNOT CALCULATE START AMORTIZATION, values INVALID!!!');
         } else {
             var annuity = OfferFinancialModel.calculateAnnuity(this.get('real_interest_percentage'), 
                 this.get('duration'), this.get('loan_amount'), 12);
@@ -137,11 +139,11 @@ L.d('Values valid, calculating duration...');
             var interestAmount = OfferFinancialModel.calculateInterestAmount(this.get('loan_amount'),
                 this.get('real_interest_percentage'), annuity, 12);
             
-            var startAmortizationPercentage = interestAmount/ this.get('loan_amount') * 100;
+            var startAmortizationPercentage = interestAmount / this.get('loan_amount');
             
-            L.e('START AMORTIZATION: ' + startAmortizationPercentage);
+//L.e('START AMORTIZATION: ' + startAmortizationPercentage);
             
-            this.set({'start_amortization_percentage' : startAmortizationPercentage, 'start_annuity' : annuity * 12}, {silent: true});
+            this.set({'start_amortization_percentage' : startAmortizationPercentage, 'start_annuity' : annuity}, {silent: true});
             this.trigger('silentchange', {changed: {start_amortization_amount: startAmortizationPercentage, annuity: annuity}});
             
         }
@@ -177,7 +179,7 @@ L.d('Values valid, calculating duration...');
         if (amortizationsPerYear !== 1) {
             annuity = annuity / (amortizationsPerYear + interestPercentage / 2 * (amortizationsPerYear - 1));
         }
-        L.d('<------ ' + annuity);
+//L.d('<------ ' + annuity);
         return annuity;
     },
 
@@ -407,7 +409,6 @@ L.w('+++ paymentBeginMonth        : ' + paymentBeginMonth);
 //L.e('  ---> REST: ' + balance);
         }
 //L.e('********* SUM AMORT: ' + sumAmortization + ', SUM INTEREST: ' + sumInterest);
-
 
         return {
             startInterestRate: {
