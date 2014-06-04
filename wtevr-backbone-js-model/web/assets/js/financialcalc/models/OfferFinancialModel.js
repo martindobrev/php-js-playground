@@ -13,7 +13,9 @@ var OfferFinancialModel = Backbone.Model.extend({
         overdue_interest_percentage: 0,
         start_amortization_percentage: 0,
         start_annuity : 0,
-        end_annuity : 0
+        end_annuity : 0,
+        payment_begin_month: (new Date()).getMonth() + 1,
+        payment_begin_year: (new Date()).getFullYear()
     },
 
     initialize: function() {
@@ -147,6 +149,19 @@ var OfferFinancialModel = Backbone.Model.extend({
             this.trigger('silentchange', {changed: {start_amortization_amount: startAmortizationPercentage, annuity: annuity}});
             
         }
+    },
+    
+    getOverview : function() {
+        return OfferFinancialModel.getAmortizationSchedule(
+            this.get('start_annuity'),
+            this.get('loan_amount'),
+            this.get('duration'),
+            this.get('constant_duration'),
+            this.get('real_interest_percentage'),
+            this.get('overdue_interest_percentage'),
+            this.get('payment_begin_year'),
+            this.get('payment_begin_month')
+        );
     }
 
 }, {
@@ -241,7 +256,7 @@ var OfferFinancialModel = Backbone.Model.extend({
                                       ) {
 
 // TODO: TEST A SOLUTION WHERE CALCULATIONS ARE MONTHLY-BASED (optional)
-/*
+
 L.w('GETTING AMORTIZATION SCHEDULE:');
 L.w('+++ interestRatePerPeriod    : ' + interestRatePerPeriod);
 L.w('+++ principal                : ' + principal);
@@ -251,7 +266,7 @@ L.w('+++ realInterest             : ' + realInterest);
 L.w('+++ overdueInterest          : ' + overdueInterest);
 L.w('+++ paymentBeginYear         : ' + paymentBeginYear);
 L.w('+++ paymentBeginMonth        : ' + paymentBeginMonth);
-*/
+
 
 
         var balance = principal;
