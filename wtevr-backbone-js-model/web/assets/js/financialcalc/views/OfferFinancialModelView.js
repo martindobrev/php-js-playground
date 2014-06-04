@@ -6,7 +6,7 @@
 var OfferFinancialModelView = Backbone.View.extend({
     template: _.template($('#offer_financial_model_view_template').html()),
 
-    initialize: function() {
+    initialize: function(options) {
         this.focusedOn = null;
 
         if (this.model) {
@@ -33,7 +33,8 @@ var OfferFinancialModelView = Backbone.View.extend({
     events: {
         'keyup input[type="text"]'      : 'onTextInputKeyup',
         'focusin input[type="text"]'    : 'onTextInputFocusIn',
-        'focusout input[type="text"]'   : 'onTextInputFocusOut'
+        'focusout input[type="text"]'   : 'onTextInputFocusOut',
+        'change input[type="checkbox"]' : 'onActiveChange'
     },
 
     onTextInputFocusIn : function(e) {
@@ -70,10 +71,24 @@ var OfferFinancialModelView = Backbone.View.extend({
                     this.$el.find('input[name="' + i + '"]').val(change.changed[i]);
                 }
             }
+
+            if (i === 'active') {
+                var interactiveProperties = this.model.getInteractiveProperties();
+                var t = this;
+                if (true === change.changed[i]) {
+                    _.each(interactiveProperties, function(prop) {
+                        t.$el.find('input[name="' + prop + '"]').prop('disabled', false);
+                    });
+                } else {
+                    _.each(interactiveProperties, function(prop) {
+                        t.$el.find('input[name="' + prop + '"]').prop('disabled', true);
+                    });
+                }
+            }
         }
 
 
-        if (this.model.isValid()) {
+        if (this.model.isValid() && this.model.get('active')) {
             L.w('MODEL IS VALID!!!!');
 
 
@@ -132,10 +147,15 @@ var OfferFinancialModelView = Backbone.View.extend({
         var propertyName = $(e.target).attr('name');
         L.d('CHANGING PROPERTY ' + propertyName);
 
+        var stringProperties = ['name'];
         var integerProperties = ['duration', 'constant_duration'];
         var floatProperties = ['start_annuity', 'end_annuity', 'loan_amount'];
         var percentageValues = ['debit_interest_percentage', 'real_interest_percentage'
             , 'start_amortization_percentage', 'overdue_interest_percentage'];
+
+        if (_.contains(stringProperties, propertyName)) {
+            this.model.set(propertyName, $(e.target).val());
+        }
 
         if (_.contains(integerProperties, propertyName)) {
             var preparedValue = parseInt($(e.target).val());
@@ -154,5 +174,10 @@ var OfferFinancialModelView = Backbone.View.extend({
             L.d('----> Setting prepared percentage value: ' + preparedValue);
             this.model.set(propertyName, preparedValue);
         }
+    },
+
+    onActiveChange : function(e) {
+        L.d('ACTIVE SET TO: ' + $(e.target).is(':checked'));
+        this.model.set('active', $(e.target).is(':checked'));
     }
 });

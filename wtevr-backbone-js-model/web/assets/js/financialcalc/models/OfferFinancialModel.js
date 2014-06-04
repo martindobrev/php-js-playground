@@ -5,6 +5,7 @@
 var OfferFinancialModel = Backbone.Model.extend({
 
     defaults: {
+        name: '',
         loan_amount: 0,
         duration: 0,
         debit_interest_percentage: 0,
@@ -14,8 +15,11 @@ var OfferFinancialModel = Backbone.Model.extend({
         start_amortization_percentage: 0,
         start_annuity : 0,
         end_annuity : 0,
-        payment_begin_month: (new Date()).getMonth() + 1,
-        payment_begin_year: (new Date()).getFullYear()
+        payment_begin_month: parseInt((new Date()).getMonth() + 1),
+        payment_begin_year: parseInt((new Date()).getFullYear()),
+        active: true,
+        editable: true,
+        label: ''
     },
 
     initialize: function() {
@@ -162,6 +166,13 @@ var OfferFinancialModel = Backbone.Model.extend({
             this.get('payment_begin_year'),
             this.get('payment_begin_month')
         );
+    },
+
+    getInteractiveProperties : function() {
+        return ['name', 'loan_amount', 'duration', 'debit_interest_percentage',
+            'constant_duration', 'real_interest_percentage', 'overdue_interest_percentage',
+            'start_amortization_percentage'
+        ];
     }
 
 }, {
@@ -211,20 +222,20 @@ var OfferFinancialModel = Backbone.Model.extend({
      * @param months            - number of months (default is 12)
      */
     calculateInterestAmount: function(sum, interest, annuity, months) {
-//L.d('FUNC calculateInterestAmount');
-//L.d('++++ sum: ' + sum);
-//L.d('++++ interest: ' + interest);
-//L.d('++++ annuity: ' + annuity);
-//L.d('++++ months: '  + months);
+L.d('FUNC calculateInterestAmount');
+L.d('++++ sum: ' + sum);
+L.d('++++ interest: ' + interest);
+L.d('++++ annuity: ' + annuity);
+L.d('++++ months: '  + months);
 
         if (!months) months = 12;
 
         var amount = (sum * interest * months / 12) - (annuity * interest * (months - 1)) / 2;
-        if (amount < 0) {
+        if (amount < 1) {
             amount = (sum * interest * months / 12);
         }
 
-//L.d('<------- ' + amount);
+L.d('<------- ' + amount);
 
         return amount;
     },
@@ -326,7 +337,7 @@ L.w('+++ paymentBeginMonth        : ' + paymentBeginMonth);
             // CHECKING FOR SPLIT
 
 
-//L.w(i + '------------ BALANCE BEFORE: ' + balance);
+L.w(i + '------------ BALANCE BEFORE: ' + balance);
 
             if (i === realInterestDuration) {
                 //L.e('!!!!!!!!!! SPLIT REACHED !!!!!!!!!');
@@ -334,22 +345,22 @@ L.w('+++ paymentBeginMonth        : ' + paymentBeginMonth);
 
                     months = paymentBeginMonth - 1;
                     if (0 !== months) {
-//L.w('!!!! SPLITTING AMOUNTS ON i: ' + i);
+L.w('!!!! SPLITTING AMOUNTS ON i: ' + i);
                         additionalSplitInterest = OfferFinancialModel.calculateInterestAmount(balance,
                             tempInterest, tempInterestRatePerPeriod, months);
                         additionalSplitAmortization = tempInterestRatePerPeriod * months - additionalSplitInterest;
-//L.w('------> additionalSplitInterest       : ' + additionalSplitInterest);
-//L.w('------> additionalSplitAmortization   : ' + additionalSplitAmortization);
-//L.w('------> First temp months: ' + months);
+L.w('------> additionalSplitInterest       : ' + additionalSplitInterest);
+L.w('------> additionalSplitAmortization   : ' + additionalSplitAmortization);
+L.w('------> First temp months: ' + months);
                         balance = balance - additionalSplitAmortization;
 
-//L.w(i + '-------------> BALANCE AFTER SPLIT SUBTRACTION: ' + balance);
+L.w(i + '-------------> BALANCE AFTER SPLIT SUBTRACTION: ' + balance);
 
                         months = 13 - paymentBeginMonth;
-//L.w('------> Second temp months: ' + months);
+L.w('------> Second temp months: ' + months);
 
                     } else {
-//L.w('!!!! SPLIT YEAR REACHED, BUT MONTHS IS 12!!!!');
+L.w('!!!! SPLIT YEAR REACHED, BUT MONTHS IS 12!!!!');
                         months = 12;
                     }
                     
@@ -361,7 +372,7 @@ L.w('+++ paymentBeginMonth        : ' + paymentBeginMonth);
                     L.e('SETTING TEMP INTEREST TO: ' + overdueInterest);
 
                 } else {
-//L.e('!!!!! OVERDUE INTEREST CAN NOT BE CALCULATED !!!!!');
+L.e('!!!!! OVERDUE INTEREST CAN NOT BE CALCULATED !!!!!');
                 }
             }
 
@@ -376,30 +387,31 @@ L.w('+++ paymentBeginMonth        : ' + paymentBeginMonth);
              */
             if (time == i) {
                 months = paymentBeginMonth - 1;
-//L.w('--------->  LAST YEAR ----> Calculating months: ' + months);
+L.w('--------->  LAST YEAR ----> Calculating months: ' + months);
             }
 
             var interestAmount = OfferFinancialModel.calculateInterestAmount(balance, tempInterest, tempInterestRatePerPeriod, months);
             var amortizationAmount = tempInterestRatePerPeriod * months - interestAmount;
 
-//L.w(i + '---- amortization amount: ' + amortizationAmount);
-//L.e(i + '---- TEMP INTEREST PER PERIOD IS: ' + tempInterestRatePerPeriod);
+L.w(i + '---- amortization amount: ' + amortizationAmount);
+L.w(i + '--------- interest amount: ' + interestAmount);
+L.e(i + '---- TEMP INTEREST PER PERIOD IS: ' + tempInterestRatePerPeriod);
 
             var storeRest = balance;
             balance = balance - amortizationAmount;
-//L.w(i + '------------ BALANCE AFTER: ' + balance);
+L.w(i + '------------ BALANCE AFTER: ' + balance);
             if (balance < 0) {
-//L.e('!!! LAST YEAR - BALANCE IS < 0');
+L.e('!!! LAST YEAR - BALANCE IS < 0');
                 amortizationAmount = storeRest;
                 tempInterestRatePerPeriod = interestAmount + amortizationAmount;
                 balance = 0;
 
             }
 
-//L.w(i + ' ---> amortization: ' + (amortizationAmount + additionalSplitAmortization)
-//                + ', interest: ' + (interestAmount + additionalSplitInterest));
-//L.w('  ---> sum: ' + (amortizationAmount + additionalSplitAmortization
-//                        + interestAmount + additionalSplitInterest));
+L.w(i + ' ---> amortization: ' + (amortizationAmount + additionalSplitAmortization)
+                + ', interest: ' + (interestAmount + additionalSplitInterest));
+L.w('  ---> sum: ' + (amortizationAmount + additionalSplitAmortization
+                        + interestAmount + additionalSplitInterest));
 
             sumAmortization += amortizationAmount + additionalSplitAmortization;
             sumInterest += interestAmount + additionalSplitInterest;
@@ -408,8 +420,8 @@ L.w('+++ paymentBeginMonth        : ' + paymentBeginMonth);
             var yearOverview = {
                 count: i,
                 year: i + paymentBeginYear,
-                interest: interestAmount,
-                amortization: amortizationAmount,
+                interest: interestAmount + additionalSplitInterest,
+                amortization: amortizationAmount + additionalSplitAmortization,
                 balance: balance,
                 temporaryAmortization: sumAmortization,
                 temporaryInterest: sumInterest

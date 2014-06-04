@@ -73,7 +73,7 @@
 
     <a class="btn btn-default" id="add_loan_btn"><i class="icon glyphicon-plus"></i>add financial model</a>
 
-    <div id="test_container">
+    <div id="test_container" class="row">
 
     </div>
     
@@ -87,92 +87,156 @@
 
 
 <script type="text/template" id="offer_financial_model_view_template">
-    <div class="well skin-default">
-        <div class="pull-right">
-            <a class="btn btn-default"><i class="glyphicon glyphicon-remove"></i></a>
+    <div class="span4">
+        <div class="control-group">
+            <label class="control-label" for="darlehen1"><%= model.get('label') %></label>
+            <% if (model.get('editable')) { %>
+            <div class="controls">
+                <div class="input-append">
+                    <input type="checkbox" class="input-small"
+                            <% if (true === model.get('active')) { %>
+                            checked="checked"
+                            <% } %>
+                    >
+                </div>
+            </div>
+            <% } %>
         </div>
-        <div>
-            <div class="control-group">
-                <label class="control-label" for="laufzeit">Darlehenssumme</label>
-                <div class="controls">
-                    <div class="input-append">
-                        <input type="text" class="input-small" name="loan_amount">
-                        <span class="add-on">€</span>
+        <div class="well skin-default">
+            <div>
+                <div class="control-group">
+                    <label class="control-label" for="laufzeit">Kreditbezeichnung</label>
+                    <div class="controls">
+                        <div class="input-append">
+                            <input type="text" class="input-small" name="name" value="<%= model.get('title') %>"
+                            <% if (false === model.get('active')) { %>
+                            disabled="disabled"
+                            <% } %>
+                                    >
+                        </div>
                     </div>
-                </div>
-            </div>
-
-            <div class="control-group">
-                <label class="control-label" for="laufzeit">Laufzeit</label>
-                <div class="controls">
-                    <div class="input-append">
-                        <input type="text" class="input-small" name="duration">
-                        <span class="add-on">J.</span>
-                    </div>
-                </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label" for="sollzinssatz">Sollzinssatz</label>
-                <div class="controls">
-                    <div class="input-append">
-                        <input type="text" class="input-small" name="debit_interest_percentage">
-                        <span class="add-on">%</span>
-                    </div>
-                </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label" for="zinsfest">Zins fest</label>
-                <div class="controls">
-                    <div class="input-append">
-                        <input type="text" class="input-small" name="constant_duration"/>
-                        <span class="add-on">J.</span>
-                    </div>
-                </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label" for="effektivzinssatz">Effektivzinssatz</label>
-                <div class="controls">
-                    <div class="input-append">
-                        <input type="text" class="input-small" name="real_interest_percentage"/>
-                        <span class="add-on">%</span>
-                    </div>
-
                 </div>
 
-            </div>
-            <div class="control-group">
-                <label class="control-label" for="anschlusszins">Zinssatz Anschlussfinanzierung</label>
-                <div class="controls">
-                    <div class="input-append">
-                        <input type="text" class="input-small" name="overdue_interest_percentage"/>
-                        <span class="add-on">%</span>
+                <div class="control-group">
+                    <label class="control-label" for="laufzeit">Darlehenssumme</label>
+                    <div class="controls">
+                        <div class="input-append">
+                            <input type="text" class="input-small" name="loan_amount" value="<%= model.get('loan_amount') %>"
+                                <% if (false === model.get('active')) { %>
+                                disabled="disabled"
+                                <% } %>
+
+                                    >
+                            <span class="add-on">€</span>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label" for="anftilgungssatz">anf. Tilgungssatz</label>
-                <div class="controls">
-                    <div class="input-append">
-                        <input type="text" class="input-small" name="start_amortization_percentage"/>
-                        <span class="add-on">%</span>
+
+                <div class="control-group">
+                    <label class="control-label" for="laufzeit">Laufzeit</label>
+                    <div class="controls">
+                        <div class="input-append">
+                            <input type="text" class="input-small" name="duration" value="<%= model.get('duration') %>"
+                            <% if (false === model.get('active')) { %>
+                            disabled="disabled"
+                            <% } %>
+                                    >
+                            <span class="add-on">J.</span>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label" for="annuitaet">Annuität</label>
-                <div class="controls">
-                    <div class="input-append">
-                        <input type="text" class="input-small" disabled="disabled" name="start_annuity"/>
-                        <span class="add-on">€</span>
+                <div class="control-group">
+                    <label class="control-label" for="sollzinssatz">Sollzinssatz</label>
+                    <div class="controls">
+                        <div class="input-append">
+                            <input type="text" class="input-small" name="debit_interest_percentage"
+                            value="<%= accounting.formatNumber(model.get('debit_interest_percentage')) %>"
+                            <% if (false === model.get('active')) { %>
+                            disabled="disabled"
+                            <% } %>
+                                    >
+                            <span class="add-on">%</span>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="control-group last">
-                <label class="control-label" for="annuitaet2">Annuität für Anschlußzinssatz</label>
-                <div class="controls">
-                    <div class="input-append">
-                        <input type="text" class="input-small" disabled="disabled" name="end_annuity"/>
-                        <span class="add-on">€</span>
+                <div class="control-group">
+                    <label class="control-label" for="zinsfest">Zins fest</label>
+                    <div class="controls">
+                        <div class="input-append">
+                            <input type="text" class="input-small" name="constant_duration"
+                           value="<%= model.get('constant_duration') %>"
+                            <% if (false === model.get('active')) { %>
+                            disabled="disabled"
+                            <% } %>
+                                    />
+                            <span class="add-on">J.</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="effektivzinssatz">Effektivzinssatz</label>
+                    <div class="controls">
+                        <div class="input-append">
+                            <input type="text" class="input-small" name="real_interest_percentage"
+                           value="<%= accounting.formatNumber(model.get('real_interest_percentage')) %>"
+                            <% if (false === model.get('active')) { %>
+                            disabled="disabled"
+                            <% } %>
+                                    />
+                            <span class="add-on">%</span>
+                        </div>
+
+                    </div>
+
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="anschlusszins">Zinssatz Anschlussfinanzierung</label>
+                    <div class="controls">
+                        <div class="input-append">
+                            <input type="text" class="input-small" name="overdue_interest_percentage"
+                           value="<%= accounting.formatNumber(model.get('overdue_interest_percentage')) %>"
+                            <% if (false === model.get('active')) { %>
+                            disabled="disabled"
+                            <% } %>
+                                    />
+                            <span class="add-on">%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="anftilgungssatz">anf. Tilgungssatz</label>
+                    <div class="controls">
+                        <div class="input-append">
+                            <input type="text" class="input-small" name="start_amortization_percentage"
+                                   value="<%= accounting.formatNumber(model.get('start_amortization_percentage')) %>"
+                            <% if (false === model.get('active')) { %>
+                            disabled="disabled"
+                            <% } %>
+
+                                    />
+                            <span class="add-on">%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="annuitaet">Annuität</label>
+                    <div class="controls">
+                        <div class="input-append">
+                            <input type="text" class="input-small" disabled="disabled" name="start_annuity"
+                                   value="<%= accounting.formatNumber(model.get('start_annuity')) %>"/>
+                            <span class="add-on">€</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="control-group last">
+                    <label class="control-label" for="annuitaet2">Annuität für Anschlußzinssatz</label>
+                    <div class="controls">
+                        <div class="input-append">
+                            <input type="text" class="input-small" disabled="disabled" name="end_annuity"
+                                   value="<%= accounting.formatNumber(model.get('end_annuity')) %>"
+                                    />
+                            <span class="add-on">€</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -202,9 +266,12 @@
 
 <script type="text/javascript">
 
-    var model = new OfferFinancialModel();
 
-    var modelCollection = new OfferFinancialModelCollection([model]);
+    var model = new OfferFinancialModel({label: 'Darlehen 1', editable: false});
+    var model2 = new OfferFinancialModel({label: 'Darlehen 2', active: true});
+    var model3 = new OfferFinancialModel({label: 'Darlehen 3', active: false});
+
+    var modelCollection = new OfferFinancialModelCollection([model, model2, model3]);
 
     var view = new OfferFinancialModelCollectionView({
         el: '#test_container', collection: modelCollection

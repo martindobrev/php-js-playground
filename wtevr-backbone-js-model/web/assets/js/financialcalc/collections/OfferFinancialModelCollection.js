@@ -8,6 +8,8 @@ var OfferFinancialModelCollection = Backbone.Collection.extend({
 
     initialize: function() {
         this.listenTo(this, 'change', this.onChange);
+        this.listenTo(this, 'add', this.calculateCommonSum);
+        this.listenTo(this, 'remove', this.calculateCommonSum);
     },
 
     onChange: function(obj) {
@@ -16,13 +18,15 @@ var OfferFinancialModelCollection = Backbone.Collection.extend({
     },
     
     calculateCommonSum : function() {
+        L.d('FUNC calculateCommonSum called');
         $('#test_overview_table').empty();
+
+        var activeModels = _.filter(this.models, function(model) {
+           return model.get('active');
+        });
         
-        var objectsValid = true;
-        _.each(this.models, function(model) {
-            if (model.validationError) {
-                objectsValid = false;
-            }
+        var objectsValid = _.every(activeModels, function(model) {
+            return  model.isValid();
         });
         
         if (objectsValid === false) {
@@ -32,14 +36,14 @@ var OfferFinancialModelCollection = Backbone.Collection.extend({
             _.each(this.models, function(model) {
                 overviews.push(model.getOverview());
             });
-            L.e(overviews);
+            //L.e(overviews);
             var schedules = new Array();
             _.each(overviews, function(o) {
                 _.each(o.schedule, function(s) {
                     schedules.push(s);
                 });
             });
-            L.e(schedules);
+            //L.e(schedules);
             var years = _.groupBy(schedules, function(sc) {
                 return sc.year
             });
@@ -64,6 +68,7 @@ var OfferFinancialModelCollection = Backbone.Collection.extend({
                 var sumInterest = _.reduce(value, function(memo, num) {
                     return memo + num.interest
                 }, 0);
+
                 var sumAmortization = _.reduce(value, function(memo, num) {
                     return memo + num.amortization;
                 }, 0);
@@ -80,7 +85,8 @@ var OfferFinancialModelCollection = Backbone.Collection.extend({
                 
                 
                 html += '</tr>';
-                
+                L.e('Year: ' + key + ', interest: ' + sumInterest + ', amortization: ' + sumAmortization + ', balance: ' + sumBalance);
+                L.e('------> Formatted: interest: ' + accounting.formatNumber(sumInterest) + ', amortization: ' + accounting.formatNumber(sumAmortization) + ', balance: ' + sumBalance);
             });
             
             html += '</tbody>';
