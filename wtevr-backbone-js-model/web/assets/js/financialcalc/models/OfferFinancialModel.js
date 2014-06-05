@@ -19,7 +19,8 @@ var OfferFinancialModel = Backbone.Model.extend({
         payment_begin_year: parseInt((new Date()).getFullYear()),
         active: true,
         editable: true,
-        label: ''
+        label: '',
+        frozen: false
     },
 
     initialize: function() {
@@ -457,5 +458,70 @@ L.w('  ---> sum: ' + (amortizationAmount + additionalSplitAmortization
             totalInterest: sumInterest
         };
 
+    },
+    
+    generateVilaOfferModelsFromJson : function(obj, frozen) {
+        // generate default parameters first
+        
+        if (true !== frozen) frozen = false;
+        
+        var offers = new Array();
+        offers.push(new OfferFinancialModel({label: 'Darlehen 1', editable: false, frozen: frozen}));
+        offers.push(new OfferFinancialModel({label: 'Darlehen 2', editable: !frozen, active: false, frozen: frozen}));
+        offers.push(new OfferFinancialModel({label: 'Darlehen 3', editable: !frozen, active: false, frozen: frozen}));
+        if (obj) {
+            if (obj.creditamount) {
+                var creditDescriptions = obj.creditdescription.split('|');
+                var loanAmounts = obj.creditamount.split('|');
+                var durations = obj.duration.split('|');
+                var constantDurations = obj.constantduration.split('|');
+                var debitInterests = obj.debitinterest.split('|');
+                var realInterests = obj.realinterest.split('|');
+                var overdueInterests = obj.overdueinterest.split('|');
+                var startAmortizations = obj.startamortization.split('|');
+                var startAnnuities = obj.startannuity.split('|');
+                var overdueAnnuities = obj.overdueannuity.split('|');
+                
+                for (var i = 0; i < loanAmounts.length; i++) {
+                    
+                    var name = creditDescriptions[i];
+                    var loanAmount = parseInt(loanAmounts[i]);
+                    var duration = parseInt(durations[i]);
+                    var constantDuration = parseInt(constantDurations[i]);
+                    var debitInterest = parseFloat(debitInterests[i]) / 100;
+                    var realInterest = parseFloat(realInterests[i]) / 100;
+                    var overdueInterest = parseFloat(overdueInterests[i]) / 100;
+                    var startAmortization = parseFloat(startAmortizations[i] / 100);
+                    var startAnnuity = parseFloat(startAnnuities[i]) / 12;
+                    var endAnnuity = parseFloat(overdueAnnuities[i]) / 12;
+                    var offerParams = {
+                        name: name,
+                        loan_amount: loanAmount,
+                        duration: duration,
+                        constant_duration: constantDuration,
+                        debit_interest_percentage: debitInterest,
+                        real_interest_percentage: realInterest,
+                        overdue_interest_percentage: overdueInterest,
+                        start_amortization_percentage: startAmortization,
+                        start_annuity: startAnnuity,
+                        end_annuity: endAnnuity
+                    }
+                    
+                    if (0 === i) {
+                        offerParams.editable = false;
+                    }
+                    offerParams.label = 'Darlehen ' + (i + 1);
+                    
+                    if (frozen) {
+                        offerParams.frozen = true;
+                        offerParams.editable = false;
+                    }
+                    
+                    offers[i] = new OfferFinancialModel(offerParams);
+                }
+            }
+        }
+        
+        return offers;
     }
 });

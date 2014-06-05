@@ -12,7 +12,7 @@
     <script type="text/javascript" src="assets/js/libs/backbone/backbone.js"></script>
     <script type="text/javascript" src="assets/js/libs/bootstrap/bootstrap.min.js"></script>
     <script type="text/javascript" src="assets/js/libs/accounting/accounting.js"></script>
-    <script type="text/javascript" src="assets/js/libs/momentjs/momentjsmin.js"></script>
+    <script type="text/javascript" src="assets/js/libs/momentjs/momentjs.min.js"></script>
     <script type="text/javascript" src="assets/js/libs/log4javascript/log4javascript.js"></script>
     <script type="text/javascript">
 
@@ -108,8 +108,8 @@
                     <label class="control-label" for="laufzeit">Kreditbezeichnung</label>
                     <div class="controls">
                         <div class="input-append">
-                            <input type="text" class="input-small" name="name" value="<%= model.get('title') %>"
-                            <% if (false === model.get('active')) { %>
+                            <input type="text" class="input-small" name="name" value="<%= model.get('name') %>"
+                            <% if (false === model.get('active') || (true === model.get('frozen'))) { %>
                             disabled="disabled"
                             <% } %>
                                     >
@@ -122,7 +122,7 @@
                     <div class="controls">
                         <div class="input-append">
                             <input type="text" class="input-small" name="loan_amount" value="<%= model.get('loan_amount') %>"
-                                <% if (false === model.get('active')) { %>
+                                <% if (false === model.get('active') || (true === model.get('frozen'))) { %>
                                 disabled="disabled"
                                 <% } %>
 
@@ -137,7 +137,7 @@
                     <div class="controls">
                         <div class="input-append">
                             <input type="text" class="input-small" name="duration" value="<%= model.get('duration') %>"
-                            <% if (false === model.get('active')) { %>
+                            <% if (false === model.get('active') || (true === model.get('frozen'))) { %>
                             disabled="disabled"
                             <% } %>
                                     >
@@ -150,8 +150,8 @@
                     <div class="controls">
                         <div class="input-append">
                             <input type="text" class="input-small" name="debit_interest_percentage"
-                            value="<%= accounting.formatNumber(model.get('debit_interest_percentage')) %>"
-                            <% if (false === model.get('active')) { %>
+                            value="<%= accounting.formatNumber(model.get('debit_interest_percentage') * 100) %>"
+                            <% if (false === model.get('active') || (true === model.get('frozen'))) { %>
                             disabled="disabled"
                             <% } %>
                                     >
@@ -165,7 +165,7 @@
                         <div class="input-append">
                             <input type="text" class="input-small" name="constant_duration"
                            value="<%= model.get('constant_duration') %>"
-                            <% if (false === model.get('active')) { %>
+                            <% if (false === model.get('active') || (true === model.get('frozen'))) { %>
                             disabled="disabled"
                             <% } %>
                                     />
@@ -178,8 +178,8 @@
                     <div class="controls">
                         <div class="input-append">
                             <input type="text" class="input-small" name="real_interest_percentage"
-                           value="<%= accounting.formatNumber(model.get('real_interest_percentage')) %>"
-                            <% if (false === model.get('active')) { %>
+                           value="<%= accounting.formatNumber(model.get('real_interest_percentage') * 100) %>"
+                            <% if (false === model.get('active') || (true === model.get('frozen'))) { %>
                             disabled="disabled"
                             <% } %>
                                     />
@@ -194,8 +194,8 @@
                     <div class="controls">
                         <div class="input-append">
                             <input type="text" class="input-small" name="overdue_interest_percentage"
-                           value="<%= accounting.formatNumber(model.get('overdue_interest_percentage')) %>"
-                            <% if (false === model.get('active')) { %>
+                           value="<%= accounting.formatNumber(model.get('overdue_interest_percentage') * 100) %>"
+                            <% if (false === model.get('active') || (true === model.get('frozen'))) { %>
                             disabled="disabled"
                             <% } %>
                                     />
@@ -208,8 +208,8 @@
                     <div class="controls">
                         <div class="input-append">
                             <input type="text" class="input-small" name="start_amortization_percentage"
-                                   value="<%= accounting.formatNumber(model.get('start_amortization_percentage')) %>"
-                            <% if (false === model.get('active')) { %>
+                                   value="<%= accounting.formatNumber(model.get('start_amortization_percentage') * 100) %>"
+                            <% if (false === model.get('active') || (true === model.get('frozen'))) { %>
                             disabled="disabled"
                             <% } %>
 
@@ -223,7 +223,7 @@
                     <div class="controls">
                         <div class="input-append">
                             <input type="text" class="input-small" disabled="disabled" name="start_annuity"
-                                   value="<%= accounting.formatNumber(model.get('start_annuity')) %>"/>
+                                   value="<%= accounting.formatNumber(model.get('start_annuity') * 12) %>"/>
                             <span class="add-on">€</span>
                         </div>
                     </div>
@@ -233,7 +233,7 @@
                     <div class="controls">
                         <div class="input-append">
                             <input type="text" class="input-small" disabled="disabled" name="end_annuity"
-                                   value="<%= accounting.formatNumber(model.get('end_annuity')) %>"
+                                   value="<%= accounting.formatNumber(model.get('end_annuity') * 12) %>"
                                     />
                             <span class="add-on">€</span>
                         </div>
@@ -266,25 +266,63 @@
 
 <script type="text/javascript">
 
+/*    
+// SINGLE OFFER STATE - OLD VALUES....
+var OFFER = {
+    creditdescription : 'APO Bank',
+    creditamount      : '97483.15',
+    duration          : '30',
+    constantduration  : '15',
+    debitinterest     : '3,5',
+    realinterest      : '3.55',
+    overdueinterest   : '4',
+    startamortization : '1.9212471516366',
+    startannuity      : '5248.15225701873',
+    overdueannuity    : '5564.1569585300285'
+}
+*/
 
-    var model = new OfferFinancialModel({label: 'Darlehen 1', editable: false});
-    var model2 = new OfferFinancialModel({label: 'Darlehen 2', active: true});
-    var model3 = new OfferFinancialModel({label: 'Darlehen 3', active: false});
 
-    var modelCollection = new OfferFinancialModelCollection([model, model2, model3]);
+// MULTIPLE OFFER STATE
+var OFFER = {
+    creditdescription : 'APO Bank|Musterkredit',
+    creditamount      : '97483.15|112378',
+    duration          : '30|20',
+    constantduration  : '15|10',
+    debitinterest     : '3,5|4',
+    realinterest      : '3.55|4.1',
+    overdueinterest   : '4|5',
+    startamortization : '1.9212471516366|3.32347837853255',
+    startannuity      : '5248.15225701873|8188.48132074171',
+    overdueannuity    : '5564.1569585300285|8922.171183069322'
+}
 
-    var view = new OfferFinancialModelCollectionView({
-        el: '#test_container', collection: modelCollection
-    });
 
-    //var view = new OfferFinancialModelView({el : '#test_container', model: model});
-    view.render();
+var demoModels = OfferFinancialModel.generateVilaOfferModelsFromJson(OFFER, false);
+    
+
+var model = new OfferFinancialModel({label: 'Darlehen 1', editable: false});
+var model2 = new OfferFinancialModel({label: 'Darlehen 2', active: true});
+var model3 = new OfferFinancialModel({label: 'Darlehen 3', active: false});
+
+//var modelCollection = new OfferFinancialModelCollection([model, model2, model3]);
+var modelCollection = new OfferFinancialModelCollection(demoModels);
+
+var view = new OfferFinancialModelCollectionView({
+    el: '#test_container', collection: modelCollection
+});
+
+//var view = new OfferFinancialModelView({el : '#test_container', model: model});
+view.render();
+
+modelCollection.calculateCommonSum();
 
 
-    $('#add_loan_btn').click(function() {
-        var m = new OfferFinancialModel();
-        modelCollection.add(m);
-    });
+
+$('#add_loan_btn').click(function() {
+    var m = new OfferFinancialModel();
+    modelCollection.add(m);
+});
 
 
 </script>
